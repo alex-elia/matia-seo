@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matia — Plateforme Agent SEO/GEO</title>
+    <meta
+      name="description"
+      content="Matia (grec : yeux) — la vigie de visibilité pour Next.js. Agent IA pour stratégie SEO/GEO, ICP et exécution gouvernée."
+    />
+    <link rel="stylesheet" href="../assets/style.css" />
+    <link rel="alternate" hreflang="en" href="../index.html" />
+    <link rel="alternate" hreflang="fr" href="index.html" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="topbar">
+        <div class="logo">Matia <span>μάτια</span></div>
+        <nav class="lang-switch" aria-label="Langue">
+          <a href="../index.html">EN</a>
+          <a href="index.html" class="active">FR</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <span class="badge">Plateforme Agent SEO / GEO</span>
+        <h1>Les yeux sur votre visibilité search</h1>
+        <p class="tagline">
+          Matia est un agent IA qui définit votre stratégie de visibilité —
+          objectifs, ICP, intentions — propose des actions, et exécute le
+          travail technique et éditorial après votre approbation.
+        </p>
+        <p class="quote">
+          La plupart des outils SEO génèrent des balises. Matia observe,
+          planifie et déploie.
+        </p>
+        <div class="cta-row">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/alex-elia/matia-seo"
+            >Voir sur GitHub</a
+          >
+          <a class="btn btn-secondary" href="#install">Démarrer</a>
+        </div>
+      </section>
+
+      <section>
+        <h2>Pourquoi Matia</h2>
+        <p>
+          Du grec <strong>μάτια</strong> (<em>yeux</em>). Le SEO et le GEO,
+          c'est être vu — par Google, Bing, et les systèmes de découverte IA.
+          Matia est votre vigie : elle détecte les lacunes d'inventaire, les
+          problèmes d'indexation et les intentions manquantes, puis vous aide à
+          agir avec rigueur.
+        </p>
+      </section>
+
+      <section>
+        <h2>Fonctionnement</h2>
+        <ol class="steps">
+          <li>
+            <strong>Stratégie</strong> — L'agent rédige objectifs, ICP,
+            positionnement et carte d'intentions par site. Vous validez.
+          </li>
+          <li>
+            <strong>Plan d'actions</strong> — Analyse des écarts vs pages
+            existantes. Actions typées : nouvelles pages, métadonnées, surfaces
+            GEO, liens, indexation.
+          </li>
+          <li>
+            <strong>Approbation</strong> — Rien ne s'exécute sans votre accord.
+          </li>
+          <li>
+            <strong>Exécution</strong> — Outils et agents déploient : métadonnées,
+            sitemaps, <code>llms.txt</code>, <code>facts.json</code>, contenu,
+            workflows Search Console.
+          </li>
+          <li>
+            <strong>Bilan</strong> — Mesure de couverture et itération de la
+            boucle stratégique.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Packages</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>@matia/core</h3>
+            <p>Profil stratégie, entités pages, types file d'actions.</p>
+          </div>
+          <div class="card">
+            <h3>@matia/next</h3>
+            <p>Métadonnées Next.js App Router et règles crawlers IA.</p>
+          </div>
+          <div class="card">
+            <h3>CLI matia</h3>
+            <p>Inventaire, validation, commandes pour agents.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Démarrage rapide</h2>
+        <pre><code>git clone https://github.com/alex-elia/matia-seo.git
+cd matia-seo
+npm install
+npm run build
+npx matia help</code></pre>
+        <p>Structure dans l'app hôte :</p>
+        <pre><code>src/seo/
+  strategy.yaml   # objectifs &amp; ICP approuvés
+  registry.ts     # inventaire pages
+  policies.ts     # règles d'indexabilité
+  entity-maps.ts  # facts GEO</code></pre>
+      </section>
+
+      <section>
+        <h2>État</h2>
+        <p>
+          <strong>v0.1.0</strong> — version fondations. Types cœur, helper
+          métadonnées Next.js, CLI initial. Contrôles qualité, skill agent
+          stratège et file d'actions à suivre.
+        </p>
+      </section>
+
+      <footer>
+        <p>Matia — Licence MIT</p>
+        <p>
+          <a href="https://github.com/alex-elia/matia-seo">GitHub</a> ·
+          <a href="../index.html">English</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

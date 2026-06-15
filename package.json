@@ -1,0 +1,30 @@
+{
+  "name": "matia-seo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Matia — SEO/GEO Agent Platform. The visibility watch for Next.js sites.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @matia/core && npm run build -w @matia/next && npm run build -w @matia/cli",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "matia": "npm run start -w @matia/cli"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alex-elia/matia-seo.git"
+  },
+  "keywords": [
+    "seo",
+    "geo",
+    "agent",
+    "nextjs",
+    "visibility",
+    "matia"
+  ]
+}

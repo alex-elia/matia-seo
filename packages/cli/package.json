@@ -1,0 +1,23 @@
+{
+  "name": "@matia/cli",
+  "version": "0.1.0",
+  "description": "Matia CLI — strategy, inventory, and action tools for agents",
+  "type": "module",
+  "bin": {
+    "matia": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@matia/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5.8.2"
+  }
+}
