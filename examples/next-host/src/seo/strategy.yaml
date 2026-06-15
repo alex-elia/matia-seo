@@ -1,0 +1,41 @@
+# Matia host app — strategy template
+# Agent drafts this file; you approve before actions run.
+
+project: example-site
+updatedAt: "2026-06-13T00:00:00.000Z"
+
+goals:
+  primary: "Describe your main business goal"
+  secondary: []
+  horizon: "90d"
+  successMetrics:
+    - "Intent coverage %"
+    - "Indexed pages count"
+    - "Qualified leads"
+
+icp:
+  personas:
+    - name: "Primary persona"
+      geography: ["EU"]
+      painPoints: []
+      searchBehavior: []
+      languages: ["en"]
+  antiPersonas: []
+
+positioning:
+  valueProposition: "One sentence value prop"
+  differentiators: []
+  competitors: []
+  partnerSites: []
+
+intentMap:
+  - intent: "example commercial intent"
+    type: commercial
+    priority: high
+    targetPages: ["/"]
+    status: partial
+
+geoEntities: []
+contentPrinciples:
+  - "Factual, citation-friendly copy for AI retrieval"
+adsTriggers: []

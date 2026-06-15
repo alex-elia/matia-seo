@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export type LocaleMetadataInput = {
+export type BuildPageMetadataInput = {
   siteUrl: string;
   locale: string;
   pathname: string;
@@ -8,11 +8,26 @@ export type LocaleMetadataInput = {
   description: string;
   locales: string[];
   defaultLocale: string;
+  /**
+   * Set false when alternate locales use different slugs (e.g. blog posts).
+   */
+  withHreflang?: boolean;
+  siteName?: string;
   ogImage?: string;
   ogType?: "website" | "article";
+  /** e.g. en_EU, fr_EU — derived from locale if omitted */
+  ogLocale?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  indexable?: boolean;
+  /** Override per-locale URL resolution (host app localePath conventions). */
+  resolveLocaleUrl?: (locale: string, pathname: string) => string;
 };
 
-function localeUrl(
+/** @deprecated Use BuildPageMetadataInput */
+export type LocaleMetadataInput = BuildPageMetadataInput;
+
+export function defaultLocaleUrl(
   siteUrl: string,
   locale: string,
   pathname: string,
@@ -27,7 +42,13 @@ function localeUrl(
   return `${base}/${locale}${normalized}`;
 }
 
-export function buildLocaleMetadata(input: LocaleMetadataInput): Metadata {
+function defaultOgLocale(locale: string): string {
+  if (locale === "fr") return "fr_EU";
+  if (locale.startsWith("en")) return "en_EU";
+  return `${locale}_${locale.toUpperCase()}`;
+}
+
+export function buildPageMetadata(input: BuildPageMetadataInput): Metadata {
   const {
     siteUrl,
     locale,
@@ -36,33 +57,81 @@ export function buildLocaleMetadata(input: LocaleMetadataInput): Metadata {
     description,
     locales,
     defaultLocale,
+    withHreflang = true,
+    siteName,
     ogImage,
     ogType = "website",
+    ogLocale,
+    publishedTime,
+    modifiedTime,
+    indexable = true,
+    resolveLocaleUrl = (loc, path) =>
+      defaultLocaleUrl(siteUrl, loc, path, defaultLocale),
   } = input;
 
-  const canonical = localeUrl(siteUrl, locale, pathname, defaultLocale);
-  const languages = Object.fromEntries(
-    locales.map((loc) => [loc, localeUrl(siteUrl, loc, pathname, defaultLocale)]),
-  );
-  languages["x-default"] = localeUrl(
-    siteUrl,
-    defaultLocale,
-    pathname,
-    defaultLocale,
-  );
+  const canonical = resolveLocaleUrl(locale, pathname);
+
+  const languages: Record<string, string> = {};
+  if (withHreflang) {
+    for (const loc of locales) {
+      languages[loc] = resolveLocaleUrl(loc, pathname);
+    }
+    languages["x-default"] = resolveLocaleUrl(defaultLocale, pathname);
+  }
+
+  const ogImageEntry = ogImage
+    ? [{ url: ogImage, ...(siteName ? { alt: siteName } : {}) }]
+    : undefined;
+
+  const openGraph: Metadata["openGraph"] = {
+    type: ogType,
+    locale: ogLocale ?? defaultOgLocale(locale),
+    url: canonical,
+    title,
+    description,
+    ...(siteName ? { siteName } : {}),
+    ...(ogImageEntry ? { images: ogImageEntry } : {}),
+    ...(ogType === "article" && publishedTime
+      ? {
+          type: "article" as const,
+          publishedTime,
+          modifiedTime: modifiedTime ?? publishedTime,
+        }
+      : {}),
+  };
+
+  const twitter: Metadata["twitter"] = ogImage
+    ? {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [ogImage],
+      }
+    : {
+        card: "summary_large_image",
+        title,
+        description,
+      };
 
   return {
     title,
     description,
-    alternates: { canonical, languages },
-    openGraph: {
-      type: ogType,
-      title,
-      description,
-      url: canonical,
-      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+    alternates: {
+      canonical,
+      ...(withHreflang ? { languages } : {}),
+    },
+    openGraph,
+    twitter,
+    robots: {
+      index: indexable,
+      follow: indexable,
     },
   };
+}
+
+/** Alias for buildPageMetadata */
+export function buildLocaleMetadata(input: BuildPageMetadataInput): Metadata {
+  return buildPageMetadata(input);
 }
 
 export const AI_CRAWLER_AGENTS = [
@@ -75,4 +144,6 @@ export const AI_CRAWLER_AGENTS = [
   "PerplexityBot",
   "Google-Extended",
   "Applebot-Extended",
+  "Bytespider",
+  "CCBot",
 ] as const;

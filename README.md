@@ -53,9 +53,9 @@ npm install @matia/core @matia/next
 ```
 
 ```ts
-import { buildLocaleMetadata } from "@matia/next";
+import { buildPageMetadata, buildRobotsFromAgents } from "@matia/next";
 
-export const metadata = buildLocaleMetadata({
+export const metadata = buildPageMetadata({
   siteUrl: "https://example.com",
   locale: "en",
   pathname: "/services",
@@ -63,7 +63,21 @@ export const metadata = buildLocaleMetadata({
   description: "What we offer.",
   locales: ["en", "fr"],
   defaultLocale: "en",
+  siteName: "Example",
+  withHreflang: true,
+  ogImage: "https://example.com/og.png",
 });
+
+// robots.ts
+export default function robots() {
+  return buildRobotsFromAgents({ siteUrl: "https://example.com" });
+}
+```
+
+Validate host SEO layer:
+
+```bash
+matia check --root /path/to/your-next-app
 ```
 
 Per-app strategy file (agent-maintained):
@@ -85,11 +99,10 @@ For local Matia development, real configs may live in gitignored `private/sites/
 
 - [x] Core types (`SiteStrategyProfile`, `SeoAction`, `SeoGeoEntity`)
 - [x] Google integrations — GSC sync, indexing submit, analyze (ported from EliaGo)
-- [x] Next.js metadata helper
-- [x] CLI: `sync-gsc`, `submit-indexing`, `analyze not-indexed`
-- [ ] Quality gates (`matia check`)
+- [x] Next.js metadata + robots helpers (`buildPageMetadata`, `buildRobotsFromAgents`)
+- [x] CLI: `sync-gsc`, `submit-indexing`, `analyze not-indexed`, `check`
+- [x] Cursor strategist rule template (`.cursor/rules/matia-strategist.mdc`)
 - [ ] Inventory scanner (`matia inventory`)
-- [ ] Strategist agent skill for Cursor
 - [ ] Action queue + Supabase ops store
 - [ ] OVH execution worker
 

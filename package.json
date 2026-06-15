@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build -w @matia/core && npm run build -w @matia/integrations-google && npm run build -w @matia/next && npm run build -w @matia/cli",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "matia": "npm run start -w @matia/cli"
+    "matia": "node packages/cli/dist/cli.js"
   },
   "engines": {
     "node": ">=20"

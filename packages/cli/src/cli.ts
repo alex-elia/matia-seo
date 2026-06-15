@@ -2,6 +2,7 @@
 import { MATIA_TAGLINE, MATIA_VERSION } from "@matia/core";
 import { getCommand, getSubcommand } from "./args.js";
 import { runAnalyzeNotIndexedCommand } from "./commands/analyze-not-indexed.js";
+import { runCheckCommand } from "./commands/check.js";
 import { runSubmitIndexingCommand } from "./commands/submit-indexing.js";
 import { runSyncGscCommand } from "./commands/sync-gsc.js";
 
@@ -18,7 +19,7 @@ Commands:
   sync-gsc                      GSC indexing snapshot (ported from EliaGo weekly check)
   submit-indexing               Submit URLs via Google Indexing API
   analyze not-indexed           List not-indexed URLs from latest snapshot
-  check                         Validate SEO setup (coming soon)
+  check                         Validate src/seo/strategy.yaml + registry.ts
 
 sync-gsc options:
   --config <path>               Site config JSON (required for real runs)
@@ -37,10 +38,15 @@ analyze not-indexed options:
   --config <path>               Site config JSON (required)
   --from-report <path>          Optional specific snapshot
 
+check options:
+  --root <path>                 Host app root (default: process.cwd)
+
 Examples:
   matia sync-gsc --config configs/sites/example-site.json
   matia submit-indexing --config configs/sites/example-site.json --dry-run
   matia analyze not-indexed --config configs/sites/example-site.json
+  matia check examples/next-host
+  matia check --root /path/to/host
 
 Docs: https://github.com/alex-elia/matia-seo
 `;
@@ -59,6 +65,9 @@ async function main(): Promise<void> {
       return;
     case "submit-indexing":
       await runSubmitIndexingCommand();
+      return;
+    case "check":
+      await runCheckCommand();
       return;
     case "analyze": {
       const sub = getSubcommand();
