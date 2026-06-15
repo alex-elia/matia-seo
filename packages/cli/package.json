@@ -14,7 +14,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@matia/core": "0.1.0"
+    "@matia/core": "0.1.0",
+    "@matia/integrations-google": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",

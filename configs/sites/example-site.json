@@ -1,0 +1,21 @@
+{
+  "name": "Example Site",
+  "slug": "example-site",
+  "property": "sc-domain:example.com",
+  "siteUrl": "https://www.example.com",
+  "serviceAccountKey": "../../.secrets/gsc-service-account.json",
+  "priorityUrls": [
+    "https://www.example.com/",
+    "https://www.example.com/about",
+    "https://www.example.com/contact"
+  ],
+  "lowValuePatterns": ["/tag/", "/category/", "/author/"],
+  "inspection": {
+    "includeAllSitemapUrls": false,
+    "maxUrls": 50,
+    "delayMs": 150
+  },
+  "reports": {
+    "baseDir": "../../reports"
+  }
+}

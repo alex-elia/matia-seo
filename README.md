@@ -20,6 +20,7 @@ Matia is an AI agent platform that defines your SEO/GEO strategy (goals, ICP, in
 | Package | Description |
 |---------|-------------|
 | [`@matia/core`](./packages/core) | Strategy types, entity model, action queue types |
+| [`@matia/integrations-google`](./packages/integrations-google) | GSC + Indexing API (ported from EliaGo SEO_Component) |
 | [`@matia/next`](./packages/next) | Next.js App Router metadata and crawler helpers |
 | [`@matia/cli`](./packages/cli) | `matia` CLI for agents and automation |
 
@@ -32,6 +33,18 @@ npm install
 npm run build
 npx matia help
 ```
+
+### Google Search Console (ported from EliaGo)
+
+```bash
+# Public example (fictional domain)
+npm run matia -- sync-gsc --config configs/sites/example-site.json
+
+# Your real sites — local only (gitignored private/ folder)
+npm run matia -- sync-gsc --config private/sites/elia-studio.json
+```
+
+Place service account JSON at `.secrets/gsc-service-account.json`. See [configs/sites/README.md](./configs/sites/README.md) and [docs/oss-private-split.md](./docs/oss-private-split.md).
 
 ### Host app integration (Next.js)
 
@@ -57,19 +70,23 @@ Per-app strategy file (agent-maintained):
 
 ```text
 src/seo/
-  strategy.yaml    # approved goals, ICP, intent map
-  registry.ts      # page inventory
-  policies.ts      # indexability rules
-  entity-maps.ts   # GEO facts schemas
+  matia.config.json  # in each host app (recommended), not in public matia-seo
+  strategy.yaml
+  registry.ts
+  policies.ts
+  entity-maps.ts
 ```
+
+For local Matia development, real configs may live in gitignored `private/sites/` — see [docs/oss-private-split.md](./docs/oss-private-split.md).
 
 ## Project status
 
 **v0.1.0 — early foundation**
 
 - [x] Core types (`SiteStrategyProfile`, `SeoAction`, `SeoGeoEntity`)
+- [x] Google integrations — GSC sync, indexing submit, analyze (ported from EliaGo)
 - [x] Next.js metadata helper
-- [x] CLI scaffold
+- [x] CLI: `sync-gsc`, `submit-indexing`, `analyze not-indexed`
 - [ ] Quality gates (`matia check`)
 - [ ] Inventory scanner (`matia inventory`)
 - [ ] Strategist agent skill for Cursor

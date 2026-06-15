@@ -8,3 +8,7 @@ dist/
 coverage/
 .turbo/
 *.log
+reports/
+.secrets/
+private/
+**/google-indexing-service-account.json
