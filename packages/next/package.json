@@ -1,6 +1,6 @@
 {
   "name": "@matia/next",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Next.js App Router adapter for Matia SEO/GEO workflows",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,7 +23,7 @@
     "next": ">=14"
   },
   "dependencies": {
-    "@matia/core": "0.1.0"
+    "@matia/core": "file:../core"
   },
   "devDependencies": {
     "next": "^16.0.0",

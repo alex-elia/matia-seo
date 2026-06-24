@@ -146,4 +146,5 @@ export const AI_CRAWLER_AGENTS = [
   "Applebot-Extended",
   "Bytespider",
   "CCBot",
+  "Bingbot",
 ] as const;

@@ -3,6 +3,9 @@ import { MATIA_TAGLINE, MATIA_VERSION } from "@matia/core";
 import { getCommand, getSubcommand } from "./args.js";
 import { runAnalyzeNotIndexedCommand } from "./commands/analyze-not-indexed.js";
 import { runCheckCommand } from "./commands/check.js";
+import { runCockpitCommand } from "./commands/cockpit.js";
+import { runGapCommand } from "./commands/gap.js";
+import { runProbeGeoCommand } from "./commands/probe-geo.js";
 import { runSubmitIndexingCommand } from "./commands/submit-indexing.js";
 import { runSyncGscCommand } from "./commands/sync-gsc.js";
 
@@ -20,6 +23,9 @@ Commands:
   submit-indexing               Submit URLs via Google Indexing API
   analyze not-indexed           List not-indexed URLs from latest snapshot
   check                         Validate src/seo/strategy.yaml + registry.ts
+  gap                           Strategy operator — intent × registry × GSC → actions
+  probe-geo                     GEO measurement — llms.txt, facts.json, health
+  cockpit                       Local operator store (status, queue, import, approve)
 
 sync-gsc options:
   --config <path>               Site config JSON (required for real runs)
@@ -41,10 +47,31 @@ analyze not-indexed options:
 check options:
   --root <path>                 Host app root (default: process.cwd)
 
+gap options:
+  --config <path>               Site config JSON (for GSC overlap + report output)
+  --root <path>                 Host app root (default: process.cwd)
+  --from-report <path>          Optional indexing-status.json
+  --cockpit true                Import proposed actions into local cockpit queue
+
+probe-geo options:
+  --config <path>               Site config JSON (required)
+  --root <path>                 Host app root (default: process.cwd)
+  --cockpit true                Also write probe artifact to cockpit
+  --gap false                   Skip merged gap report after probe
+
+cockpit options:
+  status --project <slug>       Show local cockpit state
+  queue --project <slug>          List action queue (--status proposed|approved|done)
+  approve --project <slug> --id   Approve one queued action
+  import --config <path>          Import latest GSC snapshot into cockpit
+
 Examples:
   matia sync-gsc --config configs/sites/example-site.json
   matia submit-indexing --config configs/sites/example-site.json --dry-run
   matia analyze not-indexed --config configs/sites/example-site.json
+  matia gap --config src/seo/matia.config.json --cockpit true
+  matia probe-geo --config src/seo/matia.config.json --cockpit true
+  matia cockpit status --project elia-studio
   matia check examples/next-host
   matia check --root /path/to/host
 
@@ -68,6 +95,15 @@ async function main(): Promise<void> {
       return;
     case "check":
       await runCheckCommand();
+      return;
+    case "gap":
+      await runGapCommand();
+      return;
+    case "probe-geo":
+      await runProbeGeoCommand();
+      return;
+    case "cockpit":
+      await runCockpitCommand();
       return;
     case "analyze": {
       const sub = getSubcommand();

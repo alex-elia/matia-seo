@@ -1,6 +1,6 @@
 {
   "name": "@matia/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Matia CLI — strategy, inventory, and action tools for agents",
   "type": "module",
   "bin": {
@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@matia/core": "0.1.0",
-    "@matia/integrations-google": "0.1.0"
+    "@matia/core": "file:../core",
+    "@matia/integrations-google": "file:../integrations-google"
   },
   "devDependencies": {
     "@types/node": "^20",

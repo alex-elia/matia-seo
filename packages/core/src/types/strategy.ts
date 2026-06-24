@@ -31,8 +31,22 @@ export interface SiteStrategyProfile {
     priority: "high" | "medium" | "low";
     targetPages: string[];
     status: "covered" | "partial" | "missing";
+    notes?: string;
+    evidence?: string[];
+    hypothesisQueries?: string[];
   }>;
-  geoEntities: string[];
+  geoEntities: Array<{
+    name: string;
+    type: string;
+    surfaces: string[];
+  }>;
+  signalDetection?: Array<{
+    id: string;
+    source: "gsc" | "sales" | "competitor-serp" | "geo-probe" | "manual";
+    hypothesis: string;
+    evidenceRequired: string[];
+    status: "hypothesis" | "validated" | "rejected";
+  }>;
   contentPrinciples: string[];
   adsTriggers?: string[];
 }

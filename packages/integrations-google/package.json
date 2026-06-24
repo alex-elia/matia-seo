@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@matia/core": "0.1.0",
+    "@matia/core": "file:../core",
     "googleapis": "^144.0.0"
   },
   "devDependencies": {
