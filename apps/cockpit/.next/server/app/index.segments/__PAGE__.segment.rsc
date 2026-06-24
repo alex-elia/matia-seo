@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[8500,["500","static/chunks/500-c2887bb4a3833361.js","974","static/chunks/app/page-e9a45789ae67dc30.js"],""]
+3:I[484,[],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"children":[["$","header",null,{"children":[["$","h1",null,{"children":"Matia Cockpit"}],["$","p",null,{"children":["Local operator console · data at ",["$","code",null,{"children":"C:\\Users\\Alex Gon\\.matia\\cockpit"}]]}]]}],["$","div",null,{"className":"grid","children":[["$","article","elia-studio",{"className":"card","children":[["$","h2",null,{"children":["$","$L2",null,{"href":"/sites/elia-studio","children":"Elia Studio"}]}],["$","p",null,{"className":"meta","children":"https://www.elia-studio.eu"}],["$","p",null,{"className":"meta","children":["Queue: ",5," proposed · ",0," ","approved · ",0," done"]}],["$","p",null,{"children":["Deploy drift:"," ",["$","span",null,{"className":"badge badge-warn","children":"unknown"}]]}],null,["$","div",null,{"className":"actions","children":["$","$L2",null,{"className":"btn","href":"/sites/elia-studio","children":"Open"}]}]]}]]}],false]}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"D7vr8Xb28Azl9w5srR4FA"}
+5:null

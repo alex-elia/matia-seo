@@ -4,12 +4,17 @@
   "private": true,
   "description": "Matia — SEO/GEO Agent Platform. The visibility watch for Next.js sites.",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "build": "npm run build -w @matia/core && npm run build -w @matia/integrations-google && npm run build -w @matia/next && npm run build -w @matia/cli",
+    "build:all": "npm run build && npm run build -w @matia/cockpit",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "matia": "node packages/cli/dist/cli.js"
+    "matia": "node packages/cli/dist/cli.js",
+    "cockpit:dev": "npm run dev -w @matia/cockpit",
+    "cockpit:build": "npm run build -w @matia/cockpit",
+    "cockpit:import": "npm run import-v02 -w @matia/cockpit"
   },
   "engines": {
     "node": ">=20"

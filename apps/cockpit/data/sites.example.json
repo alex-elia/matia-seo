@@ -1,0 +1,11 @@
+{
+  "sites": [
+    {
+      "slug": "elia-studio",
+      "name": "Elia Studio",
+      "siteUrl": "https://www.elia-studio.eu",
+      "hostRoot": "C:/Users/Alex Gon/source/repos/elia-studio",
+      "configPath": "src/seo/matia.config.json"
+    }
+  ]
+}

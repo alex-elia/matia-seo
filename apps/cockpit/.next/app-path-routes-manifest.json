@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/_global-error/page": "/_global-error",
+  "/api/sites/[slug]/actions/route": "/api/sites/[slug]/actions",
+  "/api/sites/[slug]/run/route": "/api/sites/[slug]/run",
+  "/api/sites/route": "/api/sites",
+  "/page": "/",
+  "/sites/[slug]/page": "/sites/[slug]"
+}

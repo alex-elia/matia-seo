@@ -54,6 +54,14 @@ export async function runProbeGeoCommand(): Promise<void> {
     console.log("\nAll strategy geoEntities appear on llms.txt and facts.json.");
   }
 
+  if (probe.manifest?.ok && probe.manifest.remote) {
+    console.log(
+      `\nManifest: strategy ${probe.manifest.remote.strategyUpdatedAt} · hash ${probe.manifest.remote.strategyHash} · build ${probe.manifest.remote.buildId ?? "—"}`,
+    );
+  } else {
+    console.log("\nManifest: unavailable (deploy /api/seo/manifest on host)");
+  }
+
   const dateLabel = new Date().toISOString().slice(0, 10);
   const outDir = path.join(
     config.resolvedPaths.reportsBaseDir,

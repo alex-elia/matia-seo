@@ -14,6 +14,17 @@ export type GeoProbeResult = {
     overall?: string;
     summary?: { pass: number; warn: number; fail: number };
   };
+  manifest?: {
+    ok: boolean;
+    remote?: {
+      project: string;
+      strategyUpdatedAt: string;
+      strategyHash: string;
+      registryHash: string;
+      buildId?: string;
+      matiaVersion?: string;
+    };
+  };
   surfaces: {
     llms: GeoSurfaceFetch;
     facts: GeoSurfaceFetch;
@@ -51,8 +62,9 @@ export async function probeGeoSurfaces(
   geoEntities: ParsedGeoEntity[],
 ): Promise<GeoProbeResult> {
   const base = siteUrl.replace(/\/$/, "");
-  const [healthRes, llms, facts] = await Promise.all([
+  const [healthRes, manifestRes, llms, facts] = await Promise.all([
     fetchSurface(`${base}/api/seo/health`),
+    fetchSurface(`${base}/api/seo/manifest`),
     fetchSurface(`${base}/llms.txt`),
     fetchSurface(`${base}/api/facts.json`),
   ]);
@@ -76,6 +88,25 @@ export async function probeGeoSurfaces(
     health = { ok: false };
   }
 
+  let manifest: GeoProbeResult["manifest"];
+  if (manifestRes.ok) {
+    try {
+      const parsed = JSON.parse(manifestRes.body) as {
+        project: string;
+        strategyUpdatedAt: string;
+        strategyHash: string;
+        registryHash: string;
+        buildId?: string;
+        matiaVersion?: string;
+      };
+      manifest = { ok: true, remote: parsed };
+    } catch {
+      manifest = { ok: false };
+    }
+  } else {
+    manifest = { ok: false };
+  }
+
   const entityMentions: Record<string, { llms: boolean; facts: boolean }> = {};
   const missingEntities: string[] = [];
 
@@ -90,6 +121,7 @@ export async function probeGeoSurfaces(
     siteUrl: base,
     probedAt: new Date().toISOString(),
     health,
+    manifest,
     surfaces: { llms, facts },
     entityMentions,
     missingEntities,
