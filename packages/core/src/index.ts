@@ -33,6 +33,15 @@ export {
   updateActionStatus,
   getCockpitStatus,
 } from "./cockpit/store.js";
+export type {
+  BriefCheck,
+  BriefPriority,
+  BriefRecommendation,
+  BuildBriefInput,
+  CockpitSiteBrief,
+  DriftStatus,
+} from "./cockpit/brief.js";
+export { buildCockpitSiteBrief, computeDriftStatus } from "./cockpit/brief.js";
 
 export const MATIA_VERSION = "0.2.0";
 

@@ -14,5 +14,11 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   updateActionStatus(slug, actionId, status);
-  return NextResponse.redirect(new URL(`/sites/${slug}?msg=Updated+${actionId}`, request.url));
+  const label =
+    status === "approved"
+      ? "Step approved — implement in your site repo, then mark done"
+      : status === "done"
+        ? "Marked done"
+        : "Updated";
+  return NextResponse.redirect(new URL(`/sites/${slug}?msg=${encodeURIComponent(label)}`, request.url));
 }

@@ -22,19 +22,59 @@ export function SiteActions({ slug }: { slug: string }) {
 
   return (
     <section className="card">
-      <h2>Operator commands</h2>
+      <h2>Refresh analysis</h2>
+      <p className="meta">
+        Run checks against your live site and strategy. Results appear in the summary above.
+      </p>
       <div className="actions">
         <button disabled={!!running} onClick={() => run("probe-geo")} className="primary">
-          {running === "probe-geo" ? "Probing…" : "Probe GEO"}
+          {running === "probe-geo" ? "Checking live site…" : "Check live site (GEO)"}
         </button>
         <button disabled={!!running} onClick={() => run("gap")}>
-          {running === "gap" ? "Running…" : "Run gap"}
+          {running === "gap" ? "Analysing…" : "Analyse content gaps"}
         </button>
         <button disabled={!!running} onClick={() => run("sync-gsc")}>
-          {running === "sync-gsc" ? "Syncing…" : "Sync GSC"}
+          {running === "sync-gsc" ? "Syncing…" : "Sync Google indexing"}
         </button>
       </div>
       {output && <pre>{output}</pre>}
+    </section>
+  );
+}
+
+export function TechnicalDetails({
+  probe,
+  gap,
+}: {
+  probe: unknown;
+  gap: unknown;
+}) {
+  const [open, setOpen] = useState(false);
+  const hasProbe = probe != null;
+  const hasGap = gap != null;
+  if (!hasProbe && !hasGap) return null;
+
+  return (
+    <section className="card" style={{ marginTop: "1rem" }}>
+      <button type="button" className="btn" onClick={() => setOpen(!open)}>
+        {open ? "Hide" : "Show"} technical JSON (for operators)
+      </button>
+      {open && (
+        <div className="grid" style={{ marginTop: "1rem" }}>
+          {hasProbe && (
+            <article>
+              <h3>Latest probe</h3>
+              <pre>{JSON.stringify(probe, null, 2).slice(0, 4000)}</pre>
+            </article>
+          )}
+          {hasGap && (
+            <article>
+              <h3>Latest gap</h3>
+              <pre>{JSON.stringify(gap, null, 2).slice(0, 4000)}</pre>
+            </article>
+          )}
+        </div>
+      )}
     </section>
   );
 }

@@ -9,6 +9,7 @@ import {
   resolveMatiaCliPath,
   type CockpitSite,
 } from "./db";
+import { computeDriftStatus } from "@matia/core";
 
 export type MatiaRunResult = {
   ok: boolean;
@@ -69,8 +70,10 @@ export function hashLocalManifest(site: CockpitSite): {
   const registryPath = path.join(site.hostRoot, "src", "seo", "registry.ts");
   if (!fs.existsSync(strategyPath) || !fs.existsSync(registryPath)) return null;
 
-  const hash = (content: string) =>
-    crypto.createHash("sha256").update(content).digest("hex").slice(0, 16);
+  const hash = (content: string) => {
+    const normalized = content.replace(/\r\n/g, "\n");
+    return crypto.createHash("sha256").update(normalized).digest("hex").slice(0, 16);
+  };
   const strategyContent = fs.readFileSync(strategyPath, "utf-8");
   const registryContent = fs.readFileSync(registryPath, "utf-8");
   const updatedAtMatch = strategyContent.match(/^updatedAt:\s*"?([^"\n]+)"?/m);
@@ -80,6 +83,13 @@ export function hashLocalManifest(site: CockpitSite): {
     registryHash: hash(registryContent),
     strategyUpdatedAt: updatedAtMatch?.[1]?.trim(),
   };
+}
+
+export function computeDrift(
+  local: ReturnType<typeof hashLocalManifest>,
+  remote: Record<string, unknown> | null,
+) {
+  return computeDriftStatus(local, remote);
 }
 
 export async function fetchRemoteManifest(siteUrl: string): Promise<Record<string, unknown> | null> {
@@ -92,24 +102,6 @@ export async function fetchRemoteManifest(siteUrl: string): Promise<Record<strin
   } catch {
     return null;
   }
-}
-
-export function computeDrift(
-  local: ReturnType<typeof hashLocalManifest>,
-  remote: Record<string, unknown> | null,
-): "in-sync" | "deploy-ahead" | "local-ahead" | "unknown" {
-  if (!local || !remote) return "unknown";
-  if (local.strategyHash === remote.strategyHash && local.registryHash === remote.registryHash) {
-    return "in-sync";
-  }
-  if (local.strategyUpdatedAt && remote.strategyUpdatedAt) {
-    const localDate = Date.parse(String(local.strategyUpdatedAt));
-    const remoteDate = Date.parse(String(remote.strategyUpdatedAt));
-    if (!Number.isNaN(localDate) && !Number.isNaN(remoteDate)) {
-      return localDate > remoteDate ? "local-ahead" : "deploy-ahead";
-    }
-  }
-  return local.strategyHash !== remote.strategyHash ? "local-ahead" : "in-sync";
 }
 
 export function runSiteCommandForSlug(

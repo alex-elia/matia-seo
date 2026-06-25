@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { getCockpitStatus, loadActionQueue } from "@matia/core";
 import {
-  computeDrift,
-  fetchRemoteManifest,
-  hashLocalManifest,
-} from "@/lib/matia-runner";
+  buildCockpitSiteBrief,
+  computeDriftStatus,
+  getCockpitStatus,
+  loadActionQueue,
+} from "@matia/core";
+import { fetchRemoteManifest, hashLocalManifest } from "@/lib/matia-runner";
 import { homeDisplayPath, listSitesFromDb } from "@/lib/db";
 
 export default async function DashboardPage() {
@@ -15,8 +16,10 @@ export default async function DashboardPage() {
       const queue = loadActionQueue(site.slug);
       const local = hashLocalManifest(site);
       const remote = await fetchRemoteManifest(site.siteUrl);
-      const drift = computeDrift(local, remote);
-      return { site, status, queue, drift, remote, local };
+      const drift = computeDriftStatus(local, remote);
+      const proposed = queue.filter((a) => a.status === "proposed");
+      const brief = buildCockpitSiteBrief({ drift, proposedActions: proposed });
+      return { site, status, brief, drift };
     }),
   );
 
@@ -24,42 +27,30 @@ export default async function DashboardPage() {
     <main>
       <header>
         <h1>Matia Cockpit</h1>
-        <p>
-          Local operator console · data at <code>{homeDisplayPath()}</code>
+        <p className="lead">
+          Visibility overview for your websites — plain-language summary, no SEO jargon required.
         </p>
+        <p className="meta">Data stored locally at <code>{homeDisplayPath()}</code></p>
       </header>
 
       <div className="grid">
-        {enriched.map(({ site, status, queue, drift, remote, local }) => (
+        {enriched.map(({ site, status, brief, drift }) => (
           <article key={site.slug} className="card">
             <h2>
               <Link href={`/sites/${site.slug}`}>{site.name}</Link>
             </h2>
             <p className="meta">{site.siteUrl}</p>
+            <p className="card-headline">{brief.headline}</p>
             <p className="meta">
-              Queue: {status.queue.proposed} proposed · {status.queue.approved}{" "}
-              approved · {status.queue.done} done
+              {status.queue.proposed} to review · {status.queue.approved} approved ·{" "}
+              {status.queue.done} done
             </p>
             <p>
-              Deploy drift:{" "}
-              <span
-                className={`badge ${
-                  drift === "in-sync"
-                    ? "badge-ok"
-                    : drift === "unknown"
-                      ? "badge-warn"
-                      : "badge-warn"
-                }`}
-              >
-                {drift}
+              Deploy:{" "}
+              <span className={`badge ${drift === "in-sync" ? "badge-ok" : "badge-warn"}`}>
+                {brief.deploy.title}
               </span>
             </p>
-            {remote && local && (
-              <p className="meta">
-                Remote build {String(remote.buildId ?? "—")} · strategy{" "}
-                {String(remote.strategyUpdatedAt ?? "—")}
-              </p>
-            )}
             <div className="actions">
               <Link className="btn" href={`/sites/${site.slug}`}>
                 Open
