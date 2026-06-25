@@ -12,3 +12,8 @@ reports/
 .secrets/
 private/
 **/google-indexing-service-account.json
+
+# Next.js (cockpit app)
+**/.next/
+**/out/
+next-env.d.ts
