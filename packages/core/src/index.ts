@@ -31,8 +31,11 @@ export {
   loadActionQueue,
   mergeActionQueue,
   updateActionStatus,
+  patchAction,
   getCockpitStatus,
 } from "./cockpit/store.js";
+export type { ExecuteActionResult } from "./cockpit/execute-action.js";
+export { executeActionOnHost } from "./cockpit/execute-action.js";
 export type {
   BriefCheck,
   BriefPriority,
@@ -42,8 +45,21 @@ export type {
   DriftStatus,
 } from "./cockpit/brief.js";
 export { buildCockpitSiteBrief, computeDriftStatus } from "./cockpit/brief.js";
+export type {
+  ArticleDraft,
+  ContentGenerateReview,
+  GroundingContext,
+  GroundingFacts,
+  ValidationIssue,
+  ValidationResult,
+} from "./content/types.js";
+export { buildGroundingContext, serializeGroundingForPrompt } from "./content/grounding.js";
+export { buildArticlePrompt } from "./content/prompts.js";
+export { formatBlogMarkdown, parseArticleResponse } from "./content/parse-response.js";
+export { validateArticleClaims } from "./content/validate-claims.js";
+export { hashString, slugifyIntent } from "./content/utils.js";
 
-export const MATIA_VERSION = "0.2.0";
+export const MATIA_VERSION = "0.3.0";
 
 export const MATIA_TAGLINE =
   "The eyes on your search visibility. Define goals. Approve the plan. Ship.";

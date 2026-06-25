@@ -8,6 +8,8 @@ import { runGapCommand } from "./commands/gap.js";
 import { runProbeGeoCommand } from "./commands/probe-geo.js";
 import { runSubmitIndexingCommand } from "./commands/submit-indexing.js";
 import { runSyncGscCommand } from "./commands/sync-gsc.js";
+import { runContentGenerateCommand } from "./commands/content-generate.js";
+import { runLlmCommand } from "./commands/llm.js";
 
 const HELP = `
 Matia — SEO/GEO Agent Platform (v${MATIA_VERSION})
@@ -26,6 +28,8 @@ Commands:
   gap                           Strategy operator — intent × registry × GSC → actions
   probe-geo                     GEO measurement — llms.txt, facts.json, health
   cockpit                       Local operator store (status, queue, import, approve)
+  llm                           OVH LLM operator vault (probe)
+  content                       Grounded article generation (generate)
 
 sync-gsc options:
   --config <path>               Site config JSON (required for real runs)
@@ -72,6 +76,8 @@ Examples:
   matia gap --config src/seo/matia.config.json --cockpit true
   matia probe-geo --config src/seo/matia.config.json --cockpit true
   matia cockpit status --project elia-studio
+  matia llm probe
+  matia content generate --root /path/to/host --intent "..." --slug my-post --dry-run true
   matia check examples/next-host
   matia check --root /path/to/host
 
@@ -105,6 +111,19 @@ async function main(): Promise<void> {
     case "cockpit":
       await runCockpitCommand();
       return;
+    case "llm":
+      await runLlmCommand();
+      return;
+    case "content": {
+      const sub = getSubcommand();
+      if (sub === "generate") {
+        await runContentGenerateCommand();
+        return;
+      }
+      console.error(`Unknown content subcommand: ${sub ?? "(none)"}`);
+      console.error("Try: matia content generate --root <host> --intent \"...\"");
+      process.exit(1);
+    }
     case "analyze": {
       const sub = getSubcommand();
       if (sub === "not-indexed") {

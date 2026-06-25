@@ -95,16 +95,34 @@ export function updateActionStatus(
   actionId: string,
   status: SeoAction["status"],
 ): SeoAction | null {
+  return patchAction(project, actionId, { status });
+}
+
+export function patchAction(
+  project: string,
+  actionId: string,
+  patch: Partial<SeoAction>,
+): SeoAction | null {
   const queue = loadActionQueue(project);
   const index = queue.findIndex((action) => action.id === actionId);
   if (index < 0) return null;
 
   const now = new Date().toISOString();
+  const current = queue[index];
+  const nextStatus = patch.status ?? current.status;
+
   queue[index] = {
-    ...queue[index],
-    status,
-    approvedAt: status === "approved" ? now : queue[index].approvedAt,
-    executedAt: status === "done" ? now : queue[index].executedAt,
+    ...current,
+    ...patch,
+    status: nextStatus,
+    approvedAt:
+      nextStatus === "approved" || nextStatus === "executing"
+        ? patch.approvedAt ?? current.approvedAt ?? now
+        : current.approvedAt,
+    executedAt:
+      nextStatus === "done" || nextStatus === "executing"
+        ? patch.executedAt ?? current.executedAt ?? now
+        : current.executedAt,
   };
   fs.writeFileSync(queuePathFor(project), JSON.stringify(queue, null, 2));
   return queue[index];

@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build -w @matia/core && npm run build -w @matia/integrations-google && npm run build -w @matia/next && npm run build -w @matia/cli",
+    "build": "npm run build -w @matia/core && npm run build -w @matia/llm && npm run build -w @matia/integrations-google && npm run build -w @matia/next && npm run build -w @matia/cli",
     "build:all": "npm run build && npm run build -w @matia/cockpit",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "matia": "node packages/cli/dist/cli.js",

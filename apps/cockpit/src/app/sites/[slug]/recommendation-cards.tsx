@@ -36,7 +36,7 @@ export function RecommendationCards({
             <input type="hidden" name="actionId" value={rec.id} />
             <input type="hidden" name="status" value="approved" />
             <button type="submit" className="primary">
-              Approve this step
+              Approve & generate draft
             </button>
           </form>
           {rec.technicalNote && (
@@ -64,7 +64,8 @@ export function ApprovedActions({
     <section className="card" style={{ marginTop: "1rem" }}>
       <h2>Approved — ready to implement ({actions.length})</h2>
       <p className="meta">
-        Approval saves your decision locally. Edit the site repo (or ask Cursor), deploy, then mark
+        Approve runs the host executor — curated patches apply instantly; content actions call OVH{" "}
+        <code>gpt-oss-120b</code> via <code>matia content generate</code>. Review drafts, then mark
         done.
       </p>
       <ul className="approved-list">
@@ -73,6 +74,7 @@ export function ApprovedActions({
             <div>
               <strong>{action.type.replace(/-/g, " ")}</strong>
               <p>{action.rationale}</p>
+              {action.outcome && <p className="meta">Last run: {action.outcome}</p>}
             </div>
             <form action={`/api/sites/${slug}/actions`} method="post">
               <input type="hidden" name="actionId" value={action.id} />

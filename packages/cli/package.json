@@ -15,7 +15,8 @@
   "license": "MIT",
   "dependencies": {
     "@matia/core": "file:../core",
-    "@matia/integrations-google": "file:../integrations-google"
+    "@matia/integrations-google": "file:../integrations-google",
+    "@matia/llm": "file:../llm"
   },
   "devDependencies": {
     "@types/node": "^20",

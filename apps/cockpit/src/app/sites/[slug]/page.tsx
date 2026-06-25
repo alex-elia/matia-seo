@@ -28,7 +28,9 @@ export default async function SiteDetailPage({ params, searchParams }: PageProps
   getCockpitStatus(slug);
   const allActions = loadActionQueue(slug);
   const proposed = allActions.filter((a) => a.status === "proposed");
-  const approved = allActions.filter((a) => a.status === "approved");
+  const inProgress = allActions.filter(
+    (a) => a.status === "approved" || a.status === "executing",
+  );
 
   const local = hashLocalManifest(site);
   const remote = await fetchRemoteManifest(site.siteUrl);
@@ -75,7 +77,7 @@ export default async function SiteDetailPage({ params, searchParams }: PageProps
         />
       </section>
 
-      <ApprovedActions actions={approved} slug={slug} />
+      <ApprovedActions actions={inProgress} slug={slug} />
 
       <TechnicalDetails probe={latestProbe?.payload} gap={latestGap?.payload} />
     </main>
