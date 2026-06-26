@@ -37,7 +37,7 @@ export function runMatia(args: string[], cwd: string): MatiaRunResult {
 
 export function runSiteCommand(
   site: CockpitSite,
-  command: "sync-gsc" | "gap" | "probe-geo",
+  command: "sync-gsc" | "gap" | "probe-geo" | "signals-detect",
 ): MatiaRunResult {
   const configPath = resolveConfigPath(site);
   if (!fs.existsSync(configPath)) {
@@ -56,7 +56,18 @@ export function runSiteCommand(
       ? ["sync-gsc", "--config", relConfig]
       : command === "gap"
         ? ["gap", "--config", relConfig, "--cockpit", "true", "--root", site.hostRoot]
-        : ["probe-geo", "--config", relConfig, "--cockpit", "true", "--root", site.hostRoot];
+        : command === "signals-detect"
+          ? [
+              "signals",
+              "detect",
+              "--config",
+              relConfig,
+              "--cockpit",
+              "true",
+              "--root",
+              site.hostRoot,
+            ]
+          : ["probe-geo", "--config", relConfig, "--cockpit", "true", "--root", site.hostRoot];
 
   return runMatia(args, site.hostRoot);
 }
@@ -106,7 +117,7 @@ export async function fetchRemoteManifest(siteUrl: string): Promise<Record<strin
 
 export function runSiteCommandForSlug(
   slug: string,
-  command: "sync-gsc" | "gap" | "probe-geo",
+  command: "sync-gsc" | "gap" | "probe-geo" | "signals-detect",
 ): MatiaRunResult {
   const site = getSiteBySlug(slug);
   if (!site) {

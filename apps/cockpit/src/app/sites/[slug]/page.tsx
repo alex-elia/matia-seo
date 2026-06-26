@@ -4,6 +4,7 @@ import {
   buildCockpitSiteBrief,
   computeDriftStatus,
   getCockpitStatus,
+  getLatestSignalDetection,
   loadActionQueue,
   type GapAnalysisResult,
   type GeoProbeResult,
@@ -38,11 +39,13 @@ export default async function SiteDetailPage({ params, searchParams }: PageProps
 
   const latestProbe = getLatestSnapshot(slug, "probe");
   const latestGap = getLatestSnapshot(slug, "gap");
+  const signalDetection = getLatestSignalDetection(slug);
 
   const brief = buildCockpitSiteBrief({
     drift,
     probe: latestProbe?.payload as GeoProbeResult | null,
     gap: latestGap?.payload as GapAnalysisResult | null,
+    signalDetection,
     proposedActions: proposed,
   });
 
@@ -79,7 +82,11 @@ export default async function SiteDetailPage({ params, searchParams }: PageProps
 
       <ApprovedActions actions={inProgress} slug={slug} />
 
-      <TechnicalDetails probe={latestProbe?.payload} gap={latestGap?.payload} />
+      <TechnicalDetails
+        probe={latestProbe?.payload}
+        gap={latestGap?.payload}
+        signals={signalDetection}
+      />
     </main>
   );
 }

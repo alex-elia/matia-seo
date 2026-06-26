@@ -1,6 +1,7 @@
 import type { SeoAction } from "../types/action.js";
 import type { GapAnalysisResult } from "../gap/analyze-gap.js";
 import type { GeoProbeResult } from "../geo/probe-surfaces.js";
+import type { SignalDetectionResult } from "../signals/types.js";
 
 export type DriftStatus = "in-sync" | "local-ahead" | "deploy-ahead" | "unknown";
 
@@ -44,6 +45,17 @@ export type CockpitSiteBrief = {
     intentPercent: number | null;
     explanation: string;
     partialTopics: string[];
+  };
+  signals: {
+    title: string;
+    hypothesis: number;
+    validated: number;
+    findings: Array<{ status: string; text: string }>;
+    comparisonMatrix: Array<{
+      label: string;
+      ownSite: boolean | null;
+      benchmark: boolean | null;
+    }>;
   };
   recommendations: BriefRecommendation[];
 };
@@ -236,11 +248,12 @@ export type BuildBriefInput = {
   drift: DriftStatus;
   probe?: GeoProbeResult | null;
   gap?: GapAnalysisResult | null;
+  signalDetection?: SignalDetectionResult | null;
   proposedActions?: SeoAction[];
 };
 
 export function buildCockpitSiteBrief(input: BuildBriefInput): CockpitSiteBrief {
-  const { drift, probe, gap, proposedActions = [] } = input;
+  const { drift, probe, gap, signalDetection, proposedActions = [] } = input;
   const deploy = driftCopy(drift);
   const checks = probeChecks(probe ?? null);
 
@@ -250,6 +263,28 @@ export function buildCockpitSiteBrief(input: BuildBriefInput): CockpitSiteBrief 
       .filter((a) => a.type === "update-content" && a.payload.intent)
       .map((a) => String(a.payload.intent))
       .slice(0, 5) ?? [];
+
+  const hypothesis =
+    signalDetection?.validations.filter((v) => v.suggestedStatus === "hypothesis").length ??
+    gap?.signalSummary.hypothesis ??
+    0;
+  const validated =
+    signalDetection?.validations.filter((v) => v.suggestedStatus === "validated").length ??
+    gap?.signalSummary.validated ??
+    0;
+
+  const signalFindings =
+    signalDetection?.findings
+      .filter((f) => f.status === "warn" || f.status === "fail" || f.status === "pass")
+      .slice(0, 8)
+      .map((f) => ({ status: f.status, text: f.evidence[0] ?? f.id })) ?? [];
+
+  const comparisonMatrix =
+    signalDetection?.comparisonMatrix.map((row) => ({
+      label: row.label,
+      ownSite: row.ownSite,
+      benchmark: row.benchmark,
+    })) ?? [];
 
   const recommendations = proposedActions.slice(0, 8).map(humanizeAction);
 
@@ -298,6 +333,13 @@ export function buildCockpitSiteBrief(input: BuildBriefInput): CockpitSiteBrief 
             ? "Most planned topics are covered. Focus on strengthening partial pages and proof points."
             : "Several planned topics are only partially covered — improving services and references pages usually helps first.",
       partialTopics,
+    },
+    signals: {
+      title: "GEO signals & benchmark comparison",
+      hypothesis,
+      validated,
+      findings: signalFindings,
+      comparisonMatrix,
     },
     recommendations,
   };

@@ -5,7 +5,9 @@ import type { SeoAction } from "../types/action.js";
 import type { GapAnalysisResult } from "../gap/analyze-gap.js";
 import type { GeoProbeResult } from "../geo/probe-surfaces.js";
 
-export type CockpitArtifactType = "gap" | "probe" | "snapshot";
+import type { SignalDetectionResult } from "../signals/types.js";
+
+export type CockpitArtifactType = "gap" | "probe" | "snapshot" | "signals";
 
 export function getCockpitRoot(): string {
   return process.env.MATIA_COCKPIT_DIR ?? path.join(os.homedir(), ".matia", "cockpit");
@@ -41,6 +43,27 @@ export function importGapAnalysis(result: GapAnalysisResult): {
 
 export function importGeoProbe(result: GeoProbeResult, project: string): string {
   return writeArtifact(project, "probe", result);
+}
+
+export function importSignalDetection(result: SignalDetectionResult): string {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const dir = path.join(projectDir(result.project), "signals");
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(dir, `detect-${timestamp}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+  return filePath;
+}
+
+export function getLatestSignalDetection(project: string): SignalDetectionResult | null {
+  const dir = path.join(projectDir(project), "signals");
+  if (!fs.existsSync(dir)) return null;
+  const files = fs
+    .readdirSync(dir)
+    .filter((name) => name.startsWith("detect-") && name.endsWith(".json"))
+    .sort()
+    .reverse();
+  if (files.length === 0) return null;
+  return JSON.parse(fs.readFileSync(path.join(dir, files[0]), "utf-8")) as SignalDetectionResult;
 }
 
 export function importSnapshot(project: string, snapshot: unknown): string {
@@ -134,6 +157,7 @@ export type CockpitStatus = {
   latestGap?: string;
   latestProbe?: string;
   latestSnapshot?: string;
+  latestSignals?: string;
   queue: {
     total: number;
     proposed: number;
@@ -158,6 +182,16 @@ export function getCockpitStatus(project: string): CockpitStatus {
     latestGap: listLatest("gap"),
     latestProbe: listLatest("probe"),
     latestSnapshot: listLatest("snapshot"),
+    latestSignals: (() => {
+      const dir = path.join(root, "signals");
+      if (!fs.existsSync(dir)) return undefined;
+      const files = fs
+        .readdirSync(dir)
+        .filter((name) => name.startsWith("detect-") && name.endsWith(".json"))
+        .sort()
+        .reverse();
+      return files[0] ? path.join(dir, files[0]) : undefined;
+    })(),
     queue: {
       total: queue.length,
       proposed: queue.filter((a) => a.status === "proposed").length,

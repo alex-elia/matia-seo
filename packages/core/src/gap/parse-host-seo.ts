@@ -1,3 +1,9 @@
+export type ParsedBenchmarkSite = {
+  url: string;
+  label: string;
+  reason: string;
+};
+
 export type ParsedIntent = {
   intent: string;
   type: string;
@@ -5,6 +11,7 @@ export type ParsedIntent = {
   targetPages: string[];
   status: "covered" | "partial" | "missing";
   notes?: string;
+  hypothesisQueries?: string[];
 };
 
 export type ParsedGeoEntity = {
@@ -18,6 +25,7 @@ export type ParsedSignal = {
   source: string;
   hypothesis: string;
   evidenceRequired: string[];
+  keywordPatterns?: string[];
   status: "hypothesis" | "validated" | "rejected";
 };
 
@@ -26,6 +34,7 @@ export type ParsedHostStrategy = {
   intents: ParsedIntent[];
   geoEntities: ParsedGeoEntity[];
   signals: ParsedSignal[];
+  benchmarkSites: ParsedBenchmarkSite[];
   contentPrinciples: string[];
 };
 
@@ -146,6 +155,11 @@ export function parseStrategyYaml(content: string): ParsedHostStrategy {
       : parseInlineArray(`targetPages: ${String(item.targetPages ?? "[]")}`),
     status: (item.status as ParsedIntent["status"]) ?? "partial",
     notes: item.notes ? String(item.notes) : undefined,
+    hypothesisQueries: Array.isArray(item.hypothesisQueries)
+      ? item.hypothesisQueries
+      : item.hypothesisQueries
+        ? parseInlineArray(`hypothesisQueries: ${String(item.hypothesisQueries)}`)
+        : undefined,
   }));
 
   const geoEntities = parseYamlListBlock(content, "geoEntities").map((item) => ({
@@ -165,7 +179,18 @@ export function parseStrategyYaml(content: string): ParsedHostStrategy {
       : parseInlineArray(
           `evidenceRequired: ${String(item.evidenceRequired ?? "[]")}`,
         ),
+    keywordPatterns: Array.isArray(item.keywordPatterns)
+      ? item.keywordPatterns
+      : item.keywordPatterns
+        ? parseInlineArray(`keywordPatterns: ${String(item.keywordPatterns)}`)
+        : undefined,
     status: (item.status as ParsedSignal["status"]) ?? "hypothesis",
+  }));
+
+  const benchmarkSites = parseYamlListBlock(content, "benchmarkSites").map((item) => ({
+    url: String(item.url ?? ""),
+    label: String(item.label ?? item.url ?? "benchmark"),
+    reason: String(item.reason ?? ""),
   }));
 
   const principlesSection = extractSection(content, "contentPrinciples");
@@ -174,7 +199,7 @@ export function parseStrategyYaml(content: string): ParsedHostStrategy {
     .map((line) => line.replace(/^\s*-\s*/, "").trim().replace(/^["']|["']$/g, ""))
     .filter(Boolean);
 
-  return { project, intents, geoEntities, signals, contentPrinciples };
+  return { project, intents, geoEntities, signals, benchmarkSites, contentPrinciples };
 }
 
 export function parseRegistryTs(content: string): ParsedRegistryEntry[] {

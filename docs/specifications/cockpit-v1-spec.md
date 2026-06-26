@@ -3,7 +3,8 @@
 **Version:** 1.0-draft  
 **Status:** Planned  
 **Repository:** `matia-seo` → `apps/cockpit`  
-**ADR:** [0001 — Cockpit repository placement](../adr/0001-matia-cockpit-repository-placement.md)
+**ADR:** [0001 — Cockpit repository placement](../adr/0001-matia-cockpit-repository-placement.md)  
+**Related:** [GEO signal detection v1 spec](./geo-signal-detection-v1-spec.md)
 
 ## Purpose
 
@@ -63,7 +64,7 @@ Matia Cockpit is a **local-only operator console** for managing SEO/GEO across m
 |--------|------|-------|
 | id | TEXT PK | UUID |
 | site_id | TEXT FK | |
-| type | TEXT | `gsc` \| `gap` \| `probe` |
+| type | TEXT | `gsc` \| `gap` \| `probe` \| `signals` |
 | captured_at | TEXT ISO | |
 | payload_json | TEXT | Full artifact JSON |
 
@@ -104,6 +105,7 @@ Cockpit v1 wraps existing commands (does not reimplement GSC):
 | Sync GSC | `matia sync-gsc --config <path>` |
 | Run gap | `matia gap --config <path> --cockpit true` |
 | Probe GEO | `matia probe-geo --config <path> --cockpit true` |
+| Detect signals | `matia signals detect --config <path> --cockpit true` |
 | Import snapshot | `matia cockpit import --config <path>` |
 | Approve action | `matia cockpit approve --project <slug> --id <id>` |
 
@@ -136,6 +138,14 @@ Cockpit UI may call these via `child_process` or import `@matia/core` + `@matia/
 
 - Last probe: health summary, entity mention matrix (llms / facts)
 - Re-run probe button
+
+### 6. Signal detection (v0.3 — file store; SQLite in Phase 4)
+
+- **Run signal detection** button → `matia signals detect`
+- Benchmark comparison matrix (own site vs `benchmarkSites[]`)
+- Hypothesis / validated counts from latest `signals/detect-*.json`
+- Top findings list (pass / warn / fail)
+- See [GEO signal detection v1 spec](./geo-signal-detection-v1-spec.md)
 
 ## Host app contract (unchanged)
 

@@ -69,6 +69,47 @@ export function SiteBrief({ brief }: { brief: CockpitSiteBrief }) {
           ))}
         </ul>
       </article>
+      <article className="card" style={{ marginTop: "1rem" }}>
+        <h3>{brief.signals.title}</h3>
+        <p className="meta">
+          Hypothesis: {brief.signals.hypothesis} · Validated: {brief.signals.validated}
+        </p>
+        {brief.signals.comparisonMatrix.length > 0 && (
+          <table className="matrix-table" style={{ width: "100%", marginTop: "0.75rem" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left" }}>Check</th>
+                <th>You</th>
+                <th>Benchmark</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brief.signals.comparisonMatrix.map((row) => (
+                <tr key={row.label}>
+                  <td>{row.label}</td>
+                  <td>{row.ownSite === null ? "—" : row.ownSite ? "✓" : "✗"}</td>
+                  <td>{row.benchmark === null ? "—" : row.benchmark ? "✓" : "✗"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {brief.signals.findings.length > 0 && (
+          <ul className="check-list" style={{ marginTop: "0.75rem" }}>
+            {brief.signals.findings.map((finding) => (
+              <li key={finding.text} className={`check check-${finding.status}`}>
+                <span className="check-icon" aria-hidden>
+                  {finding.status === "pass" ? "✓" : finding.status === "fail" ? "✗" : "!"}
+                </span>
+                <span>{finding.text}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {brief.signals.findings.length === 0 && brief.signals.comparisonMatrix.length === 0 && (
+          <p className="meta">Run signal detection to compare your GEO surfaces against benchmark sites.</p>
+        )}
+      </article>
     </section>
   );
 }

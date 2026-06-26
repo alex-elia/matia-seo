@@ -40,11 +40,17 @@ export interface SiteStrategyProfile {
     type: string;
     surfaces: string[];
   }>;
+  benchmarkSites?: Array<{
+    url: string;
+    label: string;
+    reason: string;
+  }>;
   signalDetection?: Array<{
     id: string;
     source: "gsc" | "sales" | "competitor-serp" | "geo-probe" | "manual";
     hypothesis: string;
     evidenceRequired: string[];
+    keywordPatterns?: string[];
     status: "hypothesis" | "validated" | "rejected";
   }>;
   contentPrinciples: string[];

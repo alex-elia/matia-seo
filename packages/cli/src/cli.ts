@@ -10,6 +10,7 @@ import { runSubmitIndexingCommand } from "./commands/submit-indexing.js";
 import { runSyncGscCommand } from "./commands/sync-gsc.js";
 import { runContentGenerateCommand } from "./commands/content-generate.js";
 import { runLlmCommand } from "./commands/llm.js";
+import { runSignalsDetectCommand } from "./commands/signals-detect.js";
 
 const HELP = `
 Matia — SEO/GEO Agent Platform (v${MATIA_VERSION})
@@ -27,6 +28,7 @@ Commands:
   check                         Validate src/seo/strategy.yaml + registry.ts
   gap                           Strategy operator — intent × registry × GSC → actions
   probe-geo                     GEO measurement — llms.txt, facts.json, health
+  signals                       Signal detection — benchmark, GSC, schema, GEO
   cockpit                       Local operator store (status, queue, import, approve)
   llm                           OVH LLM operator vault (probe)
   content                       Grounded article generation (generate)
@@ -63,6 +65,14 @@ probe-geo options:
   --cockpit true                Also write probe artifact to cockpit
   --gap false                   Skip merged gap report after probe
 
+signals detect options:
+  --config <path>               Site config JSON (required)
+  --root <path>                 Host app root (default: process.cwd)
+  --cockpit true                Write detection artifact to cockpit
+  --benchmark-only              Only run benchmark site probes
+  --auto-validate               Promote signals hypothesis→validated in strategy.yaml
+  --merge-gap false             Skip merged gap report after detection
+
 cockpit options:
   status --project <slug>       Show local cockpit state
   queue --project <slug>          List action queue (--status proposed|approved|done)
@@ -75,6 +85,7 @@ Examples:
   matia analyze not-indexed --config configs/sites/example-site.json
   matia gap --config src/seo/matia.config.json --cockpit true
   matia probe-geo --config src/seo/matia.config.json --cockpit true
+  matia signals detect --config src/seo/matia.config.json --cockpit true
   matia cockpit status --project elia-studio
   matia llm probe
   matia content generate --root /path/to/host --intent "..." --slug my-post --dry-run true
@@ -108,6 +119,16 @@ async function main(): Promise<void> {
     case "probe-geo":
       await runProbeGeoCommand();
       return;
+    case "signals": {
+      const sub = getSubcommand();
+      if (sub === "detect") {
+        await runSignalsDetectCommand();
+        return;
+      }
+      console.error(`Unknown signals subcommand: ${sub ?? "(none)"}`);
+      console.error("Try: matia signals detect --config <path> --cockpit true");
+      process.exit(1);
+    }
     case "cockpit":
       await runCockpitCommand();
       return;

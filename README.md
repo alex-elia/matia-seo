@@ -85,11 +85,19 @@ Per-app strategy file (agent-maintained):
 ```text
 src/seo/
   matia.config.json  # in each host app (recommended), not in public matia-seo
-  strategy.yaml
+  strategy.yaml      # intentMap, geoEntities, signalDetection, benchmarkSites
   registry.ts
   policies.ts
   entity-maps.ts
 ```
+
+GEO signal detection (operator machine):
+
+```bash
+matia signals detect --config src/seo/matia.config.json --root . --cockpit true
+```
+
+See [GEO signal detection v1 spec](./docs/specifications/geo-signal-detection-v1-spec.md).
 
 For local Matia development, real configs may live in gitignored `private/sites/` — see [docs/oss-private-split.md](./docs/oss-private-split.md).
 
@@ -110,6 +118,9 @@ For local Matia development, real configs may live in gitignored `private/sites/
 
 - **GitHub Pages (EN):** [Project site](./docs/index.html) — enable Pages from `/docs` in repo settings
 - **GitHub Pages (FR):** [Site FR](./docs/fr/index.html)
+- **ADR 0003 — GEO signal detection:** [docs/adr/0003-geo-signal-detection.md](./docs/adr/0003-geo-signal-detection.md)
+- **GEO signal detection v1 spec:** [docs/specifications/geo-signal-detection-v1-spec.md](./docs/specifications/geo-signal-detection-v1-spec.md)
+- **Cockpit v1 spec:** [docs/specifications/cockpit-v1-spec.md](./docs/specifications/cockpit-v1-spec.md)
 
 ## Why "Matia"
 

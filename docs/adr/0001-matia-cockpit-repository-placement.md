@@ -11,7 +11,7 @@ Matia v0.2 introduced:
 
 - Strategy operator (`matia gap`)
 - GEO measurement (`matia probe-geo`)
-- Signal detection (`signalDetection` in strategy YAML)
+- Signal detection (`signalDetection` in strategy YAML; automated via `matia signals detect` since v0.3 — see [ADR 0003](../adr/0003-geo-signal-detection.md))
 - A **file-based local cockpit store** (`~/.matia/cockpit/<project>/`)
 
 Host applications (e.g. elia-studio) must ship crawlable SEO/GEO surfaces to production. Operator workflows need GSC credentials, snapshot history, action queues, and approval state — none of which belong on a public Vercel deployment.

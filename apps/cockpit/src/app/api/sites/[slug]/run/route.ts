@@ -5,7 +5,9 @@ type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const body = (await request.json()) as { command?: "sync-gsc" | "gap" | "probe-geo" };
+  const body = (await request.json()) as {
+    command?: "sync-gsc" | "gap" | "probe-geo" | "signals-detect";
+  };
   if (!body.command) {
     return NextResponse.json({ ok: false, stderr: "command required" }, { status: 400 });
   }

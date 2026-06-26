@@ -5,6 +5,7 @@ export type {
   ParsedIntent,
   ParsedGeoEntity,
   ParsedSignal,
+  ParsedBenchmarkSite,
   ParsedHostStrategy,
   ParsedRegistryEntry,
 } from "./gap/parse-host-seo.js";
@@ -27,6 +28,8 @@ export {
   getCockpitRoot,
   importGapAnalysis,
   importGeoProbe,
+  importSignalDetection,
+  getLatestSignalDetection,
   importSnapshot,
   loadActionQueue,
   mergeActionQueue,
@@ -58,6 +61,21 @@ export { buildArticlePrompt } from "./content/prompts.js";
 export { formatBlogMarkdown, parseArticleResponse } from "./content/parse-response.js";
 export { validateArticleClaims } from "./content/validate-claims.js";
 export { hashString, slugifyIntent } from "./content/utils.js";
+export type {
+  SignalFinding,
+  SignalFindingSource,
+  SignalFindingStatus,
+  BenchmarkSite,
+  BenchmarkCheckResult,
+  BenchmarkSiteReport,
+  SignalValidationResult,
+  SignalDetectionResult,
+} from "./signals/types.js";
+export { SIGNALS_LANGGRAPH_DECISION } from "./signals/types.js";
+export { runSignalDetection } from "./signals/runner.js";
+export type { RunSignalDetectionInput } from "./signals/runner.js";
+export { autoValidateSignals, applySignalValidationsToYaml } from "./signals/auto-validate.js";
+export { createDeferredCitationFinding } from "./signals/llm-citation.js";
 
 export const MATIA_VERSION = "0.3.0";
 

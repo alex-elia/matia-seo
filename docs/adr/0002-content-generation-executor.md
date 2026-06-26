@@ -3,7 +3,7 @@
 **Status:** Accepted  
 **Date:** 2026-06-15  
 **Deciders:** Elia Studio / Matia platform  
-**Related:** [ADR 0001](./0001-matia-cockpit-repository-placement.md), [Content generation v1 spec](../specifications/content-generation-v1-spec.md)
+**Related:** [ADR 0001](./0001-matia-cockpit-repository-placement.md), [ADR 0003](./0003-geo-signal-detection.md), [Content generation v1 spec](../specifications/content-generation-v1-spec.md)
 
 ## Context
 

@@ -1,4 +1,5 @@
 import type { SeoAction } from "../types/action.js";
+import type { SignalFinding } from "../signals/types.js";
 import type { IndexingStatus } from "../types/entity.js";
 import {
   normalizePath,
@@ -20,6 +21,15 @@ export type GapAnalysisInput = {
   siteUrl?: string;
   geoProbe?: {
     entityMentions: Record<string, { llms: boolean; facts: boolean }>;
+  };
+  signalFindings?: SignalFinding[];
+  signalDetection?: {
+    comparisonMatrix?: Array<{
+      checkId: string;
+      label: string;
+      ownSite: boolean | null;
+      benchmark: boolean | null;
+    }>;
   };
 };
 
@@ -89,7 +99,7 @@ function isWeakIndexStatus(status: IndexingStatus | string | undefined): boolean
 }
 
 export function runGapAnalysis(input: GapAnalysisInput): GapAnalysisResult {
-  const { strategy, registry, indexingRows, siteUrl, geoProbe } = input;
+  const { strategy, registry, indexingRows, siteUrl, geoProbe, signalFindings } = input;
   const now = new Date().toISOString();
   const actions: SeoAction[] = [];
   let actionIndex = 0;
@@ -196,6 +206,10 @@ export function runGapAnalysis(input: GapAnalysisInput): GapAnalysisResult {
 
   for (const signal of strategy.signals) {
     if (signal.status !== "hypothesis") continue;
+    const validatedByDetector = signalFindings?.some(
+      (f) => f.signalId === signal.id && f.status === "pass",
+    );
+    if (validatedByDetector) continue;
     actions.push({
       id: actionId("signal", actionIndex++),
       project: strategy.project,
@@ -210,6 +224,75 @@ export function runGapAnalysis(input: GapAnalysisInput): GapAnalysisResult {
       },
       proposedAt: now,
     });
+  }
+
+  if (signalFindings?.length) {
+    for (const finding of signalFindings) {
+      if (finding.status !== "warn" && finding.status !== "fail") continue;
+      const schemaType = finding.payload?.schemaType as string | undefined;
+      if (schemaType && finding.id.startsWith("schema-gap-")) {
+        actions.push({
+          id: actionId("signal-schema", actionIndex++),
+          project: strategy.project,
+          type: "update-geo-surface",
+          status: "proposed",
+          rationale: finding.evidence[0] ?? `Add ${schemaType} JSON-LD to match benchmark`,
+          payload: {
+            schemaType,
+            findingId: finding.id,
+            action: "add-json-ld",
+          },
+          proposedAt: now,
+        });
+      } else if (finding.source === "benchmark" && finding.status === "warn") {
+        actions.push({
+          id: actionId("signal-bench", actionIndex++),
+          project: strategy.project,
+          type: "update-content",
+          status: "proposed",
+          rationale: finding.evidence[0] ?? "Benchmark comparison suggests content gap",
+          payload: {
+            findingId: finding.id,
+            benchmark: finding.payload?.benchmark,
+          },
+          proposedAt: now,
+        });
+      } else if (finding.source === "gsc" && finding.status === "fail") {
+        actions.push({
+          id: actionId("signal-gsc", actionIndex++),
+          project: strategy.project,
+          type: "submit-indexing",
+          status: "proposed",
+          rationale: finding.evidence.join("; "),
+          payload: {
+            signalId: finding.signalId,
+            weakPaths: finding.payload?.weakPaths,
+          },
+          proposedAt: now,
+        });
+      }
+    }
+
+    const ownAdvantages = signalFindings.filter(
+      (f) =>
+        f.id === "own-llms-surface" &&
+        f.status === "pass" &&
+        signalFindings.some(
+          (b) => b.source === "benchmark" && b.id.includes("-llms") && b.payload?.value === false,
+        ),
+    );
+    if (ownAdvantages.length > 0) {
+      actions.push({
+        id: actionId("signal-adv", actionIndex++),
+        project: strategy.project,
+        type: "update-geo-surface",
+        status: "proposed",
+        rationale:
+          "Competitive advantage: you have llms.txt while benchmark site does not — maintain and expand entity vocabulary",
+        payload: { advantage: "llms-txt" },
+        proposedAt: now,
+      });
+    }
   }
 
   const hypothesis = strategy.signals.filter((s) => s.status === "hypothesis").length;

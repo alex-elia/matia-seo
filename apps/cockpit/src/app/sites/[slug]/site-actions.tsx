@@ -6,7 +6,7 @@ export function SiteActions({ slug }: { slug: string }) {
   const [running, setRunning] = useState<string | null>(null);
   const [output, setOutput] = useState<string>("");
 
-  async function run(command: "sync-gsc" | "gap" | "probe-geo") {
+  async function run(command: "sync-gsc" | "gap" | "probe-geo" | "signals-detect") {
     setRunning(command);
     setOutput("");
     const res = await fetch(`/api/sites/${slug}/run`, {
@@ -33,6 +33,9 @@ export function SiteActions({ slug }: { slug: string }) {
         <button disabled={!!running} onClick={() => run("gap")}>
           {running === "gap" ? "Analysing…" : "Analyse content gaps"}
         </button>
+        <button disabled={!!running} onClick={() => run("signals-detect")}>
+          {running === "signals-detect" ? "Detecting signals…" : "Run signal detection"}
+        </button>
         <button disabled={!!running} onClick={() => run("sync-gsc")}>
           {running === "sync-gsc" ? "Syncing…" : "Sync Google indexing"}
         </button>
@@ -45,14 +48,17 @@ export function SiteActions({ slug }: { slug: string }) {
 export function TechnicalDetails({
   probe,
   gap,
+  signals,
 }: {
   probe: unknown;
   gap: unknown;
+  signals?: unknown;
 }) {
   const [open, setOpen] = useState(false);
   const hasProbe = probe != null;
   const hasGap = gap != null;
-  if (!hasProbe && !hasGap) return null;
+  const hasSignals = signals != null;
+  if (!hasProbe && !hasGap && !hasSignals) return null;
 
   return (
     <section className="card" style={{ marginTop: "1rem" }}>
@@ -71,6 +77,12 @@ export function TechnicalDetails({
             <article>
               <h3>Latest gap</h3>
               <pre>{JSON.stringify(gap, null, 2).slice(0, 4000)}</pre>
+            </article>
+          )}
+          {hasSignals && (
+            <article>
+              <h3>Latest signal detection</h3>
+              <pre>{JSON.stringify(signals, null, 2).slice(0, 4000)}</pre>
             </article>
           )}
         </div>

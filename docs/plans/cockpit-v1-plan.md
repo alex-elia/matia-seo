@@ -22,6 +22,17 @@
 - [x] elia-studio scripts: `seo:gap`, `seo:probe-geo`, `seo:cockpit`
 - [x] Bingbot in `@matia/next` robots; Bing manual submit documented
 
+## Phase 0.5 — Done (Matia v0.3 — signal detection)
+
+- [x] `matia signals detect` — deterministic detectors + benchmark comparison ([ADR 0003](../adr/0003-geo-signal-detection.md))
+- [x] `benchmarkSites[]` in strategy YAML
+- [x] GSC signal matcher (indexing proxy), schema.org detector, auto-validate
+- [x] Gap merge from `signalFindings[]`
+- [x] Cockpit signals panel + run button (file store)
+- [x] elia-studio `seo:signals` script
+- [ ] SQLite `signals` table (deferred to Phase 4)
+- [ ] LLM citation probe, LangGraph investigate (deferred — see spec)
+
 ## Phase 1 — Monorepo scaffold (week 1)
 
 **Goal:** Empty cockpit app boots locally and reads v0.2 JSON store.
@@ -71,7 +82,7 @@
 |------|--------|
 | Add site wizard (name, host_root, config_path) | UI form |
 | Multi-site dashboard | |
-| Signal validation workflow | hypothesis → validated with evidence notes |
+| Signal validation workflow | Partial — `matia signals detect --auto-validate`; full SQLite UI in Phase 4 |
 | HTML report export (reuse seo-audit patterns) | Download from cockpit |
 | Tag matia-seo `v0.3.0` with cockpit beta | |
 
