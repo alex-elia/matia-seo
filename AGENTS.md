@@ -28,6 +28,8 @@ When editing public SEO contracts, update types in `packages/core` first.
 
 **Docs:**
 
+- [Host integration v1 standard](docs/specifications/host-integration-v1-spec.md) — **required for all Next.js hosts**
+- Template files: `templates/next-host/`
 - [ADR 0003 — GEO signal detection](docs/adr/0003-geo-signal-detection.md)
 - [GEO signal detection v1 spec](docs/specifications/geo-signal-detection-v1-spec.md)
 - [Cockpit v1 spec](docs/specifications/cockpit-v1-spec.md) / [plan](docs/plans/cockpit-v1-plan.md)

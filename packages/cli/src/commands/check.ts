@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { validateHostIntegration } from "@matia/core";
 import { getArg } from "../args.js";
 
 export type CheckResult = {
@@ -93,6 +94,10 @@ export function runMatiaCheck(cwd: string): CheckResult {
       `Optional ${configPath} not found — needed for matia sync-gsc / submit-indexing`,
     );
   }
+
+  const integration = validateHostIntegration(cwd);
+  errors.push(...integration.errors);
+  warnings.push(...integration.warnings);
 
   return {
     ok: errors.length === 0,

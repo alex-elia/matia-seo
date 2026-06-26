@@ -60,6 +60,7 @@ export { buildGroundingContext, serializeGroundingForPrompt } from "./content/gr
 export { buildArticlePrompt } from "./content/prompts.js";
 export { formatBlogMarkdown, parseArticleResponse } from "./content/parse-response.js";
 export { validateArticleClaims } from "./content/validate-claims.js";
+export { validateHostIntegration, type HostIntegrationResult } from "./host/validate-integration.js";
 export { hashString, slugifyIntent } from "./content/utils.js";
 export type {
   SignalFinding,

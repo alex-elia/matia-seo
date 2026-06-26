@@ -1,0 +1,19 @@
+{
+  "_comment": "Merge into host package.json — replace YOUR_PROJECT_SLUG",
+  "scripts": {
+    "preinstall": "node scripts/ensure-matia.mjs",
+    "prebuild": "node scripts/generate-seo-manifest-snapshot.mjs",
+    "build": "next build --webpack",
+    "seo:check": "node scripts/run-matia.mjs check",
+    "seo:gap": "node scripts/run-matia.mjs gap --config src/seo/matia.config.json --cockpit true",
+    "seo:probe-geo": "node scripts/run-matia.mjs probe-geo --config src/seo/matia.config.json --cockpit true",
+    "seo:cockpit": "node scripts/run-matia.mjs cockpit status --project YOUR_PROJECT_SLUG"
+  },
+  "dependencies": {
+    "@matia/core": "file:./matia-seo/packages/core",
+    "@matia/next": "file:./matia-seo/packages/next"
+  },
+  "devDependencies": {
+    "@matia/cli": "file:./matia-seo/packages/cli"
+  }
+}

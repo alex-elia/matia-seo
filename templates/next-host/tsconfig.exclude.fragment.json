@@ -1,0 +1,4 @@
+{
+  "_comment": "Merge into tsconfig.json exclude array",
+  "exclude": ["node_modules", "matia-seo"]
+}

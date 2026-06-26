@@ -1,0 +1,4 @@
+# Matia host standard — append to .gitignore
+matia-seo/
+.matia/
+src/seo/manifest.snapshot.json
