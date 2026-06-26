@@ -6,6 +6,20 @@
       "siteUrl": "https://www.elia-studio.eu",
       "hostRoot": "C:/Users/Alex Gon/source/repos/elia-studio",
       "configPath": "src/seo/matia.config.json"
+    },
+    {
+      "slug": "onira",
+      "name": "Onira Experience",
+      "siteUrl": "https://onira-experience.vercel.app",
+      "hostRoot": "C:/Users/Alex Gon/source/repos/onira",
+      "configPath": "src/seo/matia.config.json"
+    },
+    {
+      "slug": "konaki-analipsi",
+      "name": "Konaki Analipsi",
+      "siteUrl": "https://www.konaki-crete.com",
+      "hostRoot": "C:/Users/Alex Gon/source/repos/konaki-analipsi",
+      "configPath": "src/seo/matia.config.json"
     }
   ]
 }

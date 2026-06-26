@@ -4,6 +4,7 @@ export type GroundingFacts = {
   offers?: Array<{ name?: string; timeline?: string; entryPrice?: string; summary?: string }>;
   services?: Array<{ name?: string; summary?: string }>;
   clientReferences?: Array<{ client: string; sectors?: string[]; outcome: string }>;
+  contact?: { phone?: string; whatsapp?: string; email?: string };
   contactPolicy?: string;
   citation?: { preferredName?: string; attribution?: string; legalNoticePath?: string };
 };

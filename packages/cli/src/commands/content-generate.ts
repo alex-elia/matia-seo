@@ -10,6 +10,7 @@ import {
   validateArticleClaims,
   type ContentGenerateReview,
   type ValidationResult,
+  type ArticleDraft,
 } from "@matia/core";
 import { completeChat, resolveLlmConfig } from "@matia/llm";
 import { getArg } from "../args.js";
@@ -27,22 +28,65 @@ function readHostLlmConfig(hostRoot: string): {
   tokenBudget: number;
   temperature?: number;
   maxTokens?: number;
+  articleLayout: "blog-locale" | "news-per-locale";
+  defaultAuthor: string;
 } {
   const configPath = path.join(hostRoot, "src", "seo", "matia.config.json");
   if (!fs.existsSync(configPath)) {
-    return { tokenBudget: 10_000 };
+    return { tokenBudget: 10_000, articleLayout: "blog-locale", defaultAuthor: "Matia" };
   }
   const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
     llm?: {
       groundingTokenBudget?: number;
       parameters?: { temperature?: number; maxTokens?: number };
     };
+    content?: {
+      articleLayout?: "blog-locale" | "news-per-locale";
+      defaultAuthor?: string;
+    };
   };
   return {
     tokenBudget: raw.llm?.groundingTokenBudget ?? 10_000,
     temperature: raw.llm?.parameters?.temperature,
     maxTokens: raw.llm?.parameters?.maxTokens,
+    articleLayout: raw.content?.articleLayout ?? "blog-locale",
+    defaultAuthor: raw.content?.defaultAuthor ?? "Matia",
   };
+}
+
+function resolveArticleRelativePath(
+  layout: "blog-locale" | "news-per-locale",
+  slug: string,
+  locale: string,
+): string {
+  if (layout === "news-per-locale") {
+    return `content/news/${slug}.${locale}.md`;
+  }
+  return `content/${locale}/blog/${slug}.md`;
+}
+
+function formatArticleFile(
+  draft: ArticleDraft,
+  date: string,
+  layout: "blog-locale" | "news-per-locale",
+  author: string,
+): string {
+  if (layout === "news-per-locale") {
+    const title = draft.title.replace(/"/g, '\\"');
+    const summary = draft.description.replace(/"/g, '\\"');
+    return `---
+title: "${title}"
+summary: "${summary}"
+date: ${date}
+author: ${author}
+tags: [matia-draft]
+eyebrow: Matia draft
+---
+
+${draft.bodyMarkdown}
+`;
+  }
+  return formatBlogMarkdown(draft, date);
 }
 
 export async function runContentGenerateCommand(): Promise<void> {
@@ -200,10 +244,14 @@ export async function executeContentGenerate(opts: {
       };
     }
 
-    const relPath = `content/${locale}/blog/${slug}.md`;
+    const relPath = resolveArticleRelativePath(hostLlm.articleLayout, slug, locale);
     const fullPath = path.join(opts.hostRoot, relPath);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-    fs.writeFileSync(fullPath, formatBlogMarkdown(draft, today), "utf-8");
+    fs.writeFileSync(
+      fullPath,
+      formatArticleFile(draft, today, hostLlm.articleLayout, hostLlm.defaultAuthor),
+      "utf-8",
+    );
     filesWritten.push(relPath);
   }
 

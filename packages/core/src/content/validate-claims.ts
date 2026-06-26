@@ -33,6 +33,16 @@ export function validateArticleClaims(
 
   for (const { code, pattern, message } of FORBIDDEN_PATTERNS) {
     if (code === "invented-email" && !pattern.test(body)) continue;
+    if (code === "invented-phone") {
+      const approved = [
+        facts.contact?.phone,
+        facts.contact?.whatsapp,
+        facts.contact?.email,
+      ].filter(Boolean) as string[];
+      if (approved.some((value) => body.includes(value.replace(/\s/g, "")) || body.includes(value))) {
+        continue;
+      }
+    }
     if (pattern.test(body)) {
       if (code === "invented-phone" && body.includes("€5")) {
         continue;
