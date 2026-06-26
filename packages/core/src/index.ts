@@ -22,7 +22,7 @@ export type {
 } from "./gap/analyze-gap.js";
 export { runGapAnalysis } from "./gap/analyze-gap.js";
 export type { GeoProbeResult, GeoSurfaceFetch } from "./geo/probe-surfaces.js";
-export { probeGeoSurfaces } from "./geo/probe-surfaces.js";
+export { probeGeoSurfaces, mentionsEntity } from "./geo/probe-surfaces.js";
 export type { CockpitArtifactType, CockpitStatus } from "./cockpit/store.js";
 export {
   getCockpitRoot,

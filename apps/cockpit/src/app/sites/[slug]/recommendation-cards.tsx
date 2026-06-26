@@ -1,7 +1,12 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import type { BriefRecommendation, SeoAction } from "@matia/core";
+import { postCockpitAction, withScrollPreserved } from "@/lib/action-client";
 
 export function RecommendationCards({
-  items,
+  items: initialItems,
   slug,
   emptyMessage,
 }: {
@@ -9,60 +14,122 @@ export function RecommendationCards({
   slug: string;
   emptyMessage: string;
 }) {
+  const router = useRouter();
+  const [items, setItems] = useState(initialItems);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  async function approve(actionId: string) {
+    setBusyId(actionId);
+    setFeedback(null);
+    try {
+      const result = await postCockpitAction(slug, actionId, "approved");
+      if (!result.ok) {
+        setFeedback(result.label);
+        return;
+      }
+      setItems((prev) => prev.filter((item) => item.id !== actionId));
+      setFeedback(result.label);
+      await withScrollPreserved(async () => {
+        router.refresh();
+      });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (items.length === 0) {
-    return <p className="meta">{emptyMessage}</p>;
+    return (
+      <>
+        {feedback && <p className="badge badge-ok">{feedback}</p>}
+        <p className="meta">{emptyMessage}</p>
+      </>
+    );
   }
 
   return (
-    <div className="rec-list">
-      {items.map((rec) => (
-        <article key={rec.id} className="rec-card">
-          <div className="rec-head">
-            <span className={`badge priority-${rec.priority}`}>{rec.priority}</span>
-            <h3>{rec.title}</h3>
-          </div>
-          <p>
-            <strong>Why:</strong> {rec.whyItMatters}
-          </p>
-          <p className="next-step">
-            <strong>What to do:</strong> {rec.whatToDo}
-          </p>
-          {rec.targetUrl && (
-            <p className="meta">
-              Page: <a href={rec.targetUrl}>{rec.targetUrl}</a>
+    <>
+      {feedback && <p className="badge badge-ok">{feedback}</p>}
+      <div className="rec-list">
+        {items.map((rec) => (
+          <article key={rec.id} className="rec-card">
+            <div className="rec-head">
+              <span className={`badge priority-${rec.priority}`}>{rec.priority}</span>
+              <h3>{rec.title}</h3>
+            </div>
+            <p>
+              <strong>Why:</strong> {rec.whyItMatters}
             </p>
-          )}
-          <form action={`/api/sites/${slug}/actions`} method="post" className="rec-actions">
-            <input type="hidden" name="actionId" value={rec.id} />
-            <input type="hidden" name="status" value="approved" />
-            <button type="submit" className="primary">
-              Approve & generate draft
-            </button>
-          </form>
-          {rec.technicalNote && (
-            <details className="tech-details">
-              <summary>Technical detail</summary>
-              <p className="meta">{rec.technicalNote}</p>
-            </details>
-          )}
-        </article>
-      ))}
-    </div>
+            <p className="next-step">
+              <strong>What to do:</strong> {rec.whatToDo}
+            </p>
+            {rec.targetUrl && (
+              <p className="meta">
+                Page: <a href={rec.targetUrl}>{rec.targetUrl}</a>
+              </p>
+            )}
+            <div className="rec-actions">
+              <button
+                type="button"
+                className="primary"
+                disabled={busyId === rec.id}
+                onClick={() => approve(rec.id)}
+              >
+                {busyId === rec.id ? "Working…" : "Approve & generate draft"}
+              </button>
+            </div>
+            {rec.technicalNote && (
+              <details className="tech-details">
+                <summary>Technical detail</summary>
+                <p className="meta">{rec.technicalNote}</p>
+              </details>
+            )}
+          </article>
+        ))}
+      </div>
+    </>
   );
 }
 
 export function ApprovedActions({
-  actions,
+  actions: initialActions,
   slug,
 }: {
   actions: SeoAction[];
   slug: string;
 }) {
-  if (actions.length === 0) return null;
+  const router = useRouter();
+  const [actions, setActions] = useState(initialActions);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  async function markDone(actionId: string) {
+    setBusyId(actionId);
+    setFeedback(null);
+    try {
+      const result = await postCockpitAction(slug, actionId, "done");
+      if (!result.ok) {
+        setFeedback(result.label);
+        return;
+      }
+      setActions((prev) => prev.filter((action) => action.id !== actionId));
+      setFeedback(result.label);
+      await withScrollPreserved(async () => {
+        router.refresh();
+      });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (actions.length === 0) {
+    return feedback ? <p className="badge badge-ok">{feedback}</p> : null;
+  }
 
   return (
     <section className="card" style={{ marginTop: "1rem" }}>
       <h2>Approved — ready to implement ({actions.length})</h2>
+      {feedback && <p className="badge badge-ok">{feedback}</p>}
       <p className="meta">
         Approve runs the host executor — curated patches apply instantly; content actions call OVH{" "}
         <code>gpt-oss-120b</code> via <code>matia content generate</code>. Review drafts, then mark
@@ -76,11 +143,13 @@ export function ApprovedActions({
               <p>{action.rationale}</p>
               {action.outcome && <p className="meta">Last run: {action.outcome}</p>}
             </div>
-            <form action={`/api/sites/${slug}/actions`} method="post">
-              <input type="hidden" name="actionId" value={action.id} />
-              <input type="hidden" name="status" value="done" />
-              <button type="submit">Mark done</button>
-            </form>
+            <button
+              type="button"
+              disabled={busyId === action.id}
+              onClick={() => markDone(action.id)}
+            >
+              {busyId === action.id ? "Saving…" : "Mark done"}
+            </button>
           </li>
         ))}
       </ul>

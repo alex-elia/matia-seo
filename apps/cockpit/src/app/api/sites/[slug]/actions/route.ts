@@ -4,10 +4,60 @@ import {
   loadActionQueue,
   patchAction,
   updateActionStatus,
+  type SeoAction,
 } from "@matia/core";
 import { getSiteBySlug, resolveConfigPath } from "@/lib/db";
 
 type RouteContext = { params: Promise<{ slug: string }> };
+
+function wantsJson(request: Request): boolean {
+  return request.headers.get("accept")?.includes("application/json") ?? false;
+}
+
+function jsonOrRedirect(
+  request: Request,
+  slug: string,
+  payload: CockpitActionResponse,
+  status = 200,
+): NextResponse {
+  if (wantsJson(request)) {
+    return NextResponse.json(payload, { status });
+  }
+  const target =
+    payload.ok && payload.label
+      ? `/sites/${slug}?msg=${encodeURIComponent(payload.label)}`
+      : `/sites/${slug}`;
+  return NextResponse.redirect(new URL(target, request.url));
+}
+
+type CockpitActionResponse = {
+  ok: boolean;
+  label: string;
+  actionId?: string;
+  status?: string;
+};
+
+function approveSuccessLabel(
+  action: SeoAction,
+  filesWritten: string[],
+  markDone: boolean,
+): string {
+  const files =
+    filesWritten.length > 0
+      ? ` → ${filesWritten.slice(0, 3).join(", ")}${filesWritten.length > 3 ? "…" : ""}`
+      : "";
+  if (markDone) {
+    return `Applied locally${files} — marked done`;
+  }
+  switch (action.type) {
+    case "submit-indexing":
+      return `Indexing checklist${files} — run seo:submit in host repo, then mark done`;
+    case "update-geo-surface":
+      return `GEO task file${files} — edit llms.txt / facts.json, then mark done`;
+    default:
+      return `Draft generated${files} — review in repo, then mark done`;
+  }
+}
 
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
@@ -19,7 +69,12 @@ export async function POST(request: Request, context: RouteContext) {
     | "rejected";
 
   if (!actionId) {
-    return NextResponse.redirect(new URL(`/sites/${slug}`, request.url));
+    return jsonOrRedirect(
+      request,
+      slug,
+      { ok: false, label: "Missing action id" },
+      400,
+    );
   }
 
   let label = "Updated";
@@ -45,13 +100,7 @@ export async function POST(request: Request, context: RouteContext) {
       });
 
       if (result.ok) {
-        const files =
-          result.filesWritten.length > 0
-            ? ` → ${result.filesWritten.slice(0, 3).join(", ")}${result.filesWritten.length > 3 ? "…" : ""}`
-            : "";
-        label = result.markDone
-          ? `Applied locally${files} — marked done`
-          : `Draft generated${files} — review in repo, then mark done`;
+        label = approveSuccessLabel(action, result.filesWritten, result.markDone);
       } else {
         label = `Approved — ${result.outcome}`;
       }
@@ -66,7 +115,10 @@ export async function POST(request: Request, context: RouteContext) {
     label = "Updated";
   }
 
-  return NextResponse.redirect(
-    new URL(`/sites/${slug}?msg=${encodeURIComponent(label)}`, request.url),
-  );
+  return jsonOrRedirect(request, slug, {
+    ok: true,
+    label,
+    actionId,
+    status,
+  });
 }

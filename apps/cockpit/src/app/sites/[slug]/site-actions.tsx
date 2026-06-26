@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { withScrollPreserved } from "@/lib/action-client";
 
 export function SiteActions({ slug }: { slug: string }) {
+  const router = useRouter();
   const [running, setRunning] = useState<string | null>(null);
   const [output, setOutput] = useState<string>("");
 
@@ -17,7 +20,11 @@ export function SiteActions({ slug }: { slug: string }) {
     const data = (await res.json()) as { ok: boolean; stdout: string; stderr: string };
     setOutput([data.stdout, data.stderr].filter(Boolean).join("\n"));
     setRunning(null);
-    if (data.ok) window.location.reload();
+    if (data.ok) {
+      await withScrollPreserved(async () => {
+        router.refresh();
+      });
+    }
   }
 
   return (

@@ -46,12 +46,36 @@ async function fetchSurface(url: string): Promise<GeoSurfaceFetch> {
   }
 }
 
-function mentionsEntity(text: string, entityName: string): boolean {
-  const normalized = entityName.toLowerCase();
+function normalizeToken(token: string): string {
+  return token.replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+}
+
+/** Fuzzy match for geoEntities on llms.txt / facts.json bodies. */
+export function mentionsEntity(text: string, entityName: string): boolean {
   const haystack = text.toLowerCase();
+  const normalized = entityName.toLowerCase();
   if (haystack.includes(normalized)) return true;
 
-  const tokens = normalized.split(/\s+/).filter((token) => token.length > 3);
+  // "Client references (Crédit Agricole, Efectis, Opiris)" — match inner names
+  const parenMatch = normalized.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    const innerNames = parenMatch[1]
+      .split(/[,;]/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (innerNames.length > 0) {
+      const namesHit = innerNames.filter((name) =>
+        haystack.includes(name.toLowerCase()),
+      ).length;
+      if (namesHit / innerNames.length >= 0.6) return true;
+    }
+  }
+
+  const tokens = normalized
+    .replace(/\([^)]*\)/g, " ")
+    .split(/\s+/)
+    .map(normalizeToken)
+    .filter((token) => token.length > 3);
   if (tokens.length === 0) return false;
   const matched = tokens.filter((token) => haystack.includes(token)).length;
   return matched / tokens.length >= 0.6;
