@@ -17,7 +17,7 @@
     {
       "slug": "konaki-analipsi",
       "name": "Konaki Analipsi",
-      "siteUrl": "https://www.konaki-crete.com",
+      "siteUrl": "https://konaki-crete.vercel.app",
       "hostRoot": "C:/Users/Alex Gon/source/repos/konaki-analipsi",
       "configPath": "src/seo/matia.config.json"
     }

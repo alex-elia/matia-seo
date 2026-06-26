@@ -14,6 +14,19 @@ const FORBIDDEN_PATTERNS = [
   },
 ];
 
+/** Strip formatting so +33 627 793 772 matches +33627793772 in grounding. */
+function digitsOnly(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
+function bodyContainsApprovedContact(body: string, approved: string): boolean {
+  if (!approved) return false;
+  if (body.includes(approved)) return true;
+  const digits = digitsOnly(approved);
+  if (digits.length < 8) return false;
+  return digitsOnly(body).includes(digits);
+}
+
 function approvedClients(facts: GroundingFacts): Map<string, string> {
   const map = new Map<string, string>();
   for (const ref of facts.clientReferences ?? []) {
@@ -34,12 +47,14 @@ export function validateArticleClaims(
   for (const { code, pattern, message } of FORBIDDEN_PATTERNS) {
     if (code === "invented-email" && !pattern.test(body)) continue;
     if (code === "invented-phone") {
-      const approved = [
-        facts.contact?.phone,
-        facts.contact?.whatsapp,
-        facts.contact?.email,
-      ].filter(Boolean) as string[];
-      if (approved.some((value) => body.includes(value.replace(/\s/g, "")) || body.includes(value))) {
+      const approved = [facts.contact?.phone, facts.contact?.whatsapp].filter(Boolean) as string[];
+      if (approved.some((value) => bodyContainsApprovedContact(body, value))) {
+        continue;
+      }
+    }
+    if (code === "invented-email") {
+      const approved = [facts.contact?.email].filter(Boolean) as string[];
+      if (approved.some((value) => body.includes(value))) {
         continue;
       }
     }
