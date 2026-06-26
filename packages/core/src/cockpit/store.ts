@@ -81,32 +81,42 @@ export function loadActionQueue(project: string): SeoAction[] {
   return JSON.parse(fs.readFileSync(filePath, "utf-8")) as SeoAction[];
 }
 
+function actionDedupeKey(action: SeoAction): string {
+  return `${action.type}:${action.targetUrl ?? ""}:${String(action.payload.intent ?? action.payload.signalId ?? "")}`;
+}
+
 export function mergeActionQueue(project: string, incoming: SeoAction[]): string {
   const filePath = queuePathFor(project);
   const existing = loadActionQueue(project);
-  const byKey = new Map<string, SeoAction>();
+  const byId = new Map<string, SeoAction>();
 
   for (const action of existing) {
-    if (action.status === "approved" || action.status === "executing") {
-      byKey.set(action.id, action);
-    }
+    byId.set(action.id, action);
   }
+
+  const hasOpenDuplicate = (key: string): boolean =>
+    [...byId.values()].some(
+      (item) =>
+        actionDedupeKey(item) === key &&
+        (item.status === "proposed" ||
+          item.status === "approved" ||
+          item.status === "executing"),
+    );
+
+  const isClosed = (key: string): boolean =>
+    [...byId.values()].some(
+      (item) =>
+        actionDedupeKey(item) === key &&
+        (item.status === "done" || item.status === "rejected"),
+    );
 
   for (const action of incoming) {
-    const key = `${action.type}:${action.targetUrl ?? ""}:${String(action.payload.intent ?? action.payload.signalId ?? "")}`;
-    const duplicate = [...byKey.values()].find(
-      (item) =>
-        item.type === action.type &&
-        item.targetUrl === action.targetUrl &&
-        item.status === "proposed" &&
-        JSON.stringify(item.payload) === JSON.stringify(action.payload),
-    );
-    if (!duplicate) {
-      byKey.set(key, action);
-    }
+    const key = actionDedupeKey(action);
+    if (isClosed(key) || hasOpenDuplicate(key)) continue;
+    byId.set(action.id, action);
   }
 
-  const merged = [...byKey.values()].sort((a, b) =>
+  const merged = [...byId.values()].sort((a, b) =>
     a.proposedAt.localeCompare(b.proposedAt),
   );
   fs.writeFileSync(filePath, JSON.stringify(merged, null, 2));

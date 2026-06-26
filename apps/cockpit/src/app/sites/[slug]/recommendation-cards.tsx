@@ -5,6 +5,18 @@ import { useState } from "react";
 import type { BriefRecommendation, SeoAction } from "@matia/core";
 import { postCockpitAction, withScrollPreserved } from "@/lib/action-client";
 
+function approveButtonLabel(actionType?: string): string {
+  switch (actionType) {
+    case "submit-indexing":
+      return "Acknowledge (indexing checklist)";
+    case "update-geo-surface":
+      return "Create GEO task file";
+    case "create-page":
+      return "Approve & scaffold page";
+    default:
+      return "Approve & generate draft";
+  }
+}
 export function RecommendationCards({
   items: initialItems,
   slug,
@@ -75,7 +87,7 @@ export function RecommendationCards({
                 disabled={busyId === rec.id}
                 onClick={() => approve(rec.id)}
               >
-                {busyId === rec.id ? "Working…" : "Approve & generate draft"}
+                {busyId === rec.id ? "Working…" : approveButtonLabel(rec.actionType)}
               </button>
             </div>
             {rec.technicalNote && (

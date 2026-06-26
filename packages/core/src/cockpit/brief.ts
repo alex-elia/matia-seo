@@ -115,11 +115,13 @@ function humanizeAction(action: SeoAction): BriefRecommendation {
       return {
         id: action.id,
         priority: "medium",
-        title: "Ask Google to review important pages",
+        title: target
+          ? `Google has not indexed ${new URL(target).pathname} yet`
+          : "Google has not indexed an important page yet",
         whyItMatters:
-          "New or updated pages may not appear in search until Google crawls and indexes them — this can take days.",
+          "This is not a content or code problem on your site. Google Search Console reports the URL as unknown or not indexed — the page may be fine but Google has not crawled or listed it yet.",
         whatToDo:
-          "Run indexing submit from Matia (or wait for natural crawl). Do not resubmit daily — once per meaningful update is enough.",
+          "Optional: run `npm run seo:submit` once after a deploy (remove --dry-run in package.json when ready). Otherwise wait 1–2 weeks for natural crawl. Mark done when submitted or you choose to wait.",
         actionType: action.type,
         targetUrl: action.targetUrl,
         technicalNote: action.rationale,
